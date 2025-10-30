@@ -26,19 +26,29 @@ const handleD3Data = (event) => {
 
 export function SetupButtons() {
 
-    document.getElementById('play').addEventListener('click', () => globalEditor.evaluate());
-    document.getElementById('stop').addEventListener('click', () => globalEditor.stop());
-    document.getElementById('process').addEventListener('click', () => {
-        Proc()
-    }
-    )
-    document.getElementById('process_play').addEventListener('click', () => {
-        if (globalEditor != null) {
-            Proc()
-            globalEditor.evaluate()
+    const bind = () => {
+        const playBtn = document.getElementById('play');
+        const stopBtn = document.getElementById('stop');
+        const procBtn = document.getElementById('process');
+        const procPlayBtn = document.getElementById('process-play');
+
+        if (!playBtn || !stopBtn || !procBtn || !procPlayBtn){
+            requestAnimationFrame(bind);
+            return;
         }
-    }
-    )
+
+        playBtn.addEventListener('click', () => globalEditor?.evaluate());
+        stopBtn.addEventListener('click', () => globalEditor?.stop());
+        procBtn.addEventListener('click', () => {
+            if (globalEditor) {
+                Proc();
+                globalEditor.evaluate();
+            }
+        });
+    };
+
+    requestAnimationFrame(bind);
+
 }
 
 
