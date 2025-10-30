@@ -8,7 +8,7 @@ export default function ControlsPanel() {
     };
     return (
         <div className="card p-3 h-100">
-            <h6 className="fw-bold text-dark mb-3">Controls Panel</h6>
+            <h6 className="fw-bold mb-3">Controls Panel</h6>
 
             <div className="mb-2">
                 <strong>Pattern 1 (p1)</strong>
