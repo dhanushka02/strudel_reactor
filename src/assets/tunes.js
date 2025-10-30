@@ -1,100 +1,116 @@
-export const stranger_tune = `setcps(140/60/4)
+// src/assets/tunes.js
+// Default tune used to seed the editor
+export const stranger_tune = `
+// "(4S,4aS,8aR)-4,8a-Dimethyloctahydronaphthalen-4a(2H)-ol dub" @by superlocrianlizardbuzzard
 
-samples('github:algorave-dave/samples')
-samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
-samples('https://raw.githubusercontent.com/Mittans/tidal-drum-machines/main/machines/tidal-drum-machines.json')
+// minimal synth colors
+// writing a string comprising several lines with backticks \`\`
+$: note(\`<
+[<[[d4] [g3]] [d4, d5]>] [- [[a#3, a#4] [a3, a4]@7] [e4, e5]] [<[a4, a5] -> <- - [d4, d5]> [g3, g4]] [[a#3, a#4] [f4, f5]] [-] [-]
+<[e3, e4] [e4 d4]> <[d3, d4] [d4 db4]> [g3,g4] [f#3@5, f#4@5 -] [e3, e4] <- - [- b3, b4]>
+>/2\`.sub(0))
+.s("[square, sawtooth]").fm(3)
+  .adsr("[.2:2:.2:.2]")
+  .lpf(277).lpenv(5).lpa(-1).lpd(-1).lpq(3)
+  .distort("[2:.1]")
+  .velocity(perlin.range(0.5, 0.3).slow(1.5))
+  .late(perlin.range(0.04, 0.3).slow(2))
+  .gain(.7)
+  .mask("<0!12 1!8 0!12 1!4 0!4>")
+  .when("<0!8 1!4 0!12>", x=>x.hush())
+  .when("<0!24 1!4>", x=>x.hush())
+.room("[.3, .5]")
+  //.hush()
 
-const gain_patterns = [
-  "2",
-  "{0.75 2.5}*4",
-    "{0.75 2.5!9 0.75 2.5!5 0.75 2.5 0.75 2.5!7 0.75 2.5!3 <2.5 0.75> 2.5}%16",
-]
+setcps(150/60/4)
 
-const drum_structure = [
-"~",
-"x*4",
-"{x ~!9 x ~!5 x ~ x ~!7 x ~!3 < ~ x > ~}%16",
-]
+const drumstruct = "Linn9000"
 
-const basslines = [
-  "[[eb1, eb2]!16 [f2, f1]!16 [g2, g1]!16 [f2, f1]!8 [bb2, bb1]!8]/8",
-  "[[eb1, eb2]!16 [bb2, bb1]!16 [g2, g1]!16 [f2, f1]!4 [bb1, bb2]!4 [eb1, eb2]!4 [f1, f2]!4]/8"
-]
+// synth build on pentatonics and accidentals
+// raising a note with an accidental behind the note
+$: n(\`<
+  <[1,2,3,4,5,6]!2 [0, 1,7,3,9,5,6]>
+  [ <[0,1, 2, 3, 4, 5, 8, 7, 6, 5]!2 [0,1 ,2 , 7, 6, 5, 3, 4, 5, 8]>] 
+  <[0, 1#,2#,3,4,5,6]!6 [6#,2#,9#,5,11]>
+  <[0bb, 2bb, 3bb, 4bb, 5bb, 6bb] [0##, 2#, 3##, 4#, 5##]>
+  >\`)
+  .scale("<G!12 E!12>:<minor!2 major!2>:pentatonic")
+  .s("triangle").adsr("[<.1 .125 .15 .2 .3 .4 .35 .25 .12>/3:1:0:0]")
+.lpf(777).lpa(2.8).lpf(777).lpf(777).lpenv("<2>")
+  .fm("<1.5 2.5 3.5 4.5 3.5 2.5>/3").fmh(".99").fmenv(-.2).vib("<6!5 5>:.2")
+  .room(.5)
+  .velocity(.1)
+.hpf(999)
+.mask("<0!7 1!999>")
 
-const arpeggiator1 = [
-"{d4 bb3 eb3 d3 bb2 eb2}%16",
-"{c4 bb3 f3 c3 bb2 f2}%16",
-"{d4 bb3 g3 d3 bb2 g2}%16",
-"{c4 bb3 f3 c3 bb2 f2}%16",
-]
+// pianos build on pentatonics and accidentals
+// regarding tonality change, G major is close to E minor, so G minor / major switching to E minor / major is subjectively smooth enough
+$: n(\`
+  <
+  < [0, 2, 5, 6]!2 [1,7,3,9,5,6]>
+  [ [0,1, 2],      <[ 8, 7, 6]!2  [- 7 [6, 5] [3, 4] 5 8]!1>] 
+  <[0, 1#,2#,3,4,5,6]!6 [6#,2#,9#,5,11]>
+  <<[0bb, 2bb, 3bb 4bb 5bb 6bb]  [0bb, 2bb, 3bb, 4bb, 5bb, 6bb]> [0##, 2#, 3##, 4#, 5##]>
+  >
+  \`).scale("<G2!12 E2!12>:<minor!2 major!2>:pentatonic")
+  .s("kawai")
+  .delay("[.3:.1:.3]")
+  .room(.2).rlp(50)
+.velocity("<.7 .5>*<1 8 1 4>".sub(.3))
+.clip(1.7)
+.hpf(555)
+//.hush()
 
-const arpeggiator2 = [
-"{d4 bb3 eb3 d3 bb2 eb2}%16",
-"{c4 bb3 f3 c3 bb2 f2}%16",
-"{d4 bb3 g3 d3 bb2 g2}%16",
-"{d5 bb4 g4 d4 bb3 g3 d4 bb3 eb3 d3 bb2 eb2}%16",
-]
+// kick drum
+$: note("<g1!3 e1!3>/4")
+  .sound("sine")
+  .penv(32).pdec(0.2)
+  .adsr("0:1:0:0")
+  .pcurve(1)
+  .velocity(5)
+  .lpf(33)
+  .coarse("<0!4 4!4>/4")
+  .mask("<1 0!3>")
 
+// drums…
+const sweep = 9
 
-const pattern = 0
-const bass = 0
+$: stack(
+s("bd").struct("x(<3!4 5 3!3>, 8, <0 2 0 1 0 1>)")  .bank("RolandTR606") .gain("[2 1 1]") .mask("<0!8 1!992>")
+  ,
+s("hh").struct("x(<7 9 9 8 9 13>, 16, <0 0 2 0>)").velocity("<.5 .2>*<16!3 8!3 16!2>".add(0))   .bank(drumstruct)
+    .speed(cosine.range(1.15, 1.35).slow(sweep)) .mask("<0!4 1!996>")
 
-bassline:
-note(pick(basslines, bass))
-.sound("supersaw")
-.postgain(2)
-.room(0.6)
-.lpf(700)
-.room(0.4)
-.postgain(pick(gain_patterns, pattern))
-
-
-main_arp: 
-note(pick(arpeggiator1, "<0 1 2 3>/2"))
-.sound("supersaw")
-.lpf(300)
-.adsr("0:0:.5:.1")
-.room(0.6)
-.lpenv(3.3)
-.postgain(pick(gain_patterns, pattern))
-
-
-drums:
-stack(
-  s("tech:5")
-  .postgain(6)
-  .pcurve(2)
-  .pdec(1)
-  .struct(pick(drum_structure, pattern)),
-
-  s("sh").struct("[x!3 ~!2 x!10 ~]")
-  .postgain(0.5).lpf(7000)
-  .bank("RolandTR808")
-  .speed(0.8).jux(rev).room(sine.range(0.1,0.4)).gain(0.6),
-
-  s("{~ ~ rim ~ cp ~ rim cp ~!2 rim ~ cp ~ < rim ~ >!2}%8 *2")
-  .bank("[KorgDDM110, OberheimDmx]").speed(1.2)
-  .postgain(.25),
+  .when("<0!8 1!8>", x=>x.superimpose(x=>x.gain(.1).late(1/16)))
+  ,
+  s("<rim>").struct("x(<0 [2 0]>, 4, 2)").room("<.1!3 .2 >/2") .speed("[.79, .8]")  .bank(drumstruct) .gain(.4) .fast("<1!4 2!8>")
+  ,
+  s("[cp, <->]").struct("x(<0 1>, 8, <2 4>)*<1!6 2!2>").room("<.3!3 .4 >/2") .speed("[1.11, 1.14]")  .bank("LinnDrum") .gain(.05)
+  .fast("<1!6 2!2>").hpf(1111).mask("<0!8 1!8>")
+  )
+  .superimpose(x=>x.speed(cosine.range(1.15, 1.35).slow(sweep + 0.1).gain(.4))
 )
+  .lpf(2222).ftype("12db").late("<0 0.01>*2")
 
-drums2: 
-stack(
-  s("[~ hh]*4").bank("RolandTR808").room(0.3).speed(0.75).gain(1.2),
-  s("hh").struct("x*16").bank("RolandTR808")
-  .gain(0.6)
-  .jux(rev)
-  .room(sine.range(0.1,0.4))
-  .postgain(0.5),
-  
-  s("[psr:[2|5|6|7|8|9|12|24|25]*16]?0.1")
-  .gain(0.1)
-  .postgain(pick(gain_patterns, pattern))
-  .hpf(1000)
-  .speed(0.5)
-  .rarely(jux(rev)),
+ // bass …
+$: n("<<4!9 5 4!2> 3 <1!5 1b> 0 0 1 <2 2 2 1> 3>*<4!5 5>")
+  .add(5)
+  .scale("<G1!12 E1!12>:<minor major>:pentatonic")
+  .s("gm_acoustic_bass:1")
+.velocity("<1.8 1.1>*<4!5 5>".add(1.5))
+  .lpf(222)
+.ply("<1!8 1!4 2!2 1!2>")
+.mask("<0!8 1!992>")
+.when("<0!16 1!8>", x=>x.struct("[x@1 x@3]*<4!5 5>").velocity("<[2.3 1.1@3][1.8 1.1@3]>*<4!5 5>"))
+
+all(
+  x=>x.hpf("<999 888 777 667 0!999>/2")
+  .postgain(.5)
+  .when("<0!8 1!4 0!12>", x=>x.struct("x(3,8)")
+  .stack(s("[cp(<0 0 0 3>,8)]").speed("[1.11, 1.14]").bank(drumstruct))
+  .lpf(saw.range(222, 2222).slow(4)).shape(saw.range(.1, .5).slow(4)))
+
+  .when("<0!24 1!4>", x=>x.struct("x(5,8)").lpf(saw.range(222, 2222).slow(4)) .shape(saw.range(.1, .5).slow(4)).ply("<1!24 1!4 1!24 1 [1 2] [1 2] 2 1!999>"))
 )
-//Remixed and reproduced from Algorave Dave's code found here: https://www.youtube.com/watch?v=ZCcpWzhekEY
-// all(x => x.gain(mouseX.range(0,1)))
-// all(x => x.log())
-
-// @version 1.2`;
+// @version 1.1
+`;
