@@ -9,9 +9,9 @@ export default function OutputDisplay() {
             </div>
 
             {/* REPL Output Area */}
-            <div id="editor" />
-
-            
+            <div className="repl-shell">
+                <div id="editor" />
+            </div>        
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 export default function PreprocessorEditor() {
     return (
-        <div className="card p-3 h-100">
+        <div className="card p-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="f2-bold text-dark">Preprocessor Editor</h6>
                 <small className="text-muted">Edit your preprocessing code here</small>

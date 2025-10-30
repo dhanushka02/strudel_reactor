@@ -135,25 +135,26 @@ return (
 
         {/* Main Content */}
         <div className="container-fluid px-4 py-3">
+            {/* Left Column */}
             <div className='row gx-3 gy-3'>
-                {/* Left Column */}
-                <div className='col-lg-4 col-md-6'>
+                <div className='col-lg-8 col-md-12'>
                     <PreprocessorEditor />
+                    <div className='mt-3'>
+                        <OutputDisplay />
+                    </div>
                 </div>
-                
-                {/* Middle Column */}
-                <div className='col-lg-4 col-md-6'>
-                    <OutputDisplay />
+                <div className='col-lg-4 col-md-12'>
+                        <ControlsPanel />
+                </div>
+            </div>
+
+            <div className='row gx-3 gy-3 mt-3'>
+                <div className='col-12'>
                     <D3Visualizer />
                     <canvas id="roll" className='w-100 mt-2' height="200"></canvas>
                 </div>
-                {/* Right Column */}
-                <div className='col-lg-4 col-md-12'> 
-                    <ControlsPanel />
-                </div>
             </div>
         </div>
-
     </div>
     // <div>
     //     <h2>Strudel Demo</h2>
