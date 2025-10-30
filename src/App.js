@@ -51,6 +51,10 @@ export function ProcAndPlay() {
     }
 }
 
+if (typeof window !== 'undefined') {
+    window.ProcAndPlay = ProcAndPlay;
+}
+
 export function Proc() {
 
     let proc_text = document.getElementById('proc').value
@@ -128,9 +132,10 @@ return (
                 </div>
                 
                 {/* Middle Column */}
-                <div className='col-lg-8 col-md-6'>
+                <div className='col-lg-4 col-md-6'>
                     <OutputDisplay />
                     <D3Visualizer />
+                    <canvas id="roll" className='w-100 mt-2' height="200"></canvas>
                 </div>
                 {/* Right Column */}
                 <div className='col-lg-4 col-md-12'> 
