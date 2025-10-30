@@ -1,3 +1,6 @@
+body {
+    padding-top: 64px;
+}
 
 .repl-shell {
   height: 600px;                 
@@ -17,14 +20,14 @@
 
 
 .repl-shell #editor .cm-editor {
-  height: 100% !important;       
+  height: 100% ;       
   border-radius: 8px;
 }
 
 
 .repl-shell #editor .cm-scroller {
-  height: 100% !important;       
-  overflow: auto !important;     
+  height: 100% ;       
+  overflow: auto;     
   -webkit-overflow-scrolling: touch;
 }
 
@@ -32,4 +35,6 @@
 .repl-shell .cm-line {
     text-align: justify;
 }
+
+
 

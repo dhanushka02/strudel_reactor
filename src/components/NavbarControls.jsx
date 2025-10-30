@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function NavbarControls() {
     return (
-        <nav className='navbar navbar-light bg-white border-bottom px-4 py-2 shadow-sm'>
+        <nav className='navbar navbar-light bg-white fixed-top border-bottom px-4 py-2 shadow-sm'>
             <div className='d-flex align-items-center gap-2'>
                 <h5 className='mb-0 fw-bold text-dark'>Strudel Reactor</h5>
                 <small className='text-muted'>Live Coding Music Platform</small>
