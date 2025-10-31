@@ -16,6 +16,8 @@
   --nav-glass-b: rgba(11, 9, 28, 0.58);
   --nav-stroke: rgba(124, 92, 225, 0.20);
   --nav-shadow: 0 8pm 24px rgba(8, 6, 18, 0.45);
+  --accent: #b18fff;
+  --accent-2: #7c5cff;
 }
 
 /* Global Styles */
@@ -219,81 +221,59 @@ body {
 } 
 
 /* Button Styles*/
-.btn {
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s;
-  border: none;
+
+.btn-slate {
+    color: #e7e9ff;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(0,0,0,.18));
+    border: 1.5px solid rgba(255, 255, 255, .16);
+
+}
+.btn-slate:hover {
+    filter: brightness(1.06);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary-purple), #8b5cf6);
-  color: white;
+.btn-ghost-accent {
+    color: var(--accent);
+    background: transparent;
+    border: 1.5px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    box-shadow: 0 6px 18px rgba(177, 143, 255, 0.20);
+}
+.btn-ghost-accent:hover {
+    background: rgba(124, 92, 255, 0.08);
+    border-color: var(--accent-2);
+    color: #eae6ff;
 }
 
-.btn-success {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
+.btn-success-dark {
+    color: #fff;
+    background: linear-gradient(180deg, #2ebf71, #1f9a56);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+}
+.btn-success-dark:hover {
+    filter: brightness(1.05);
 }
 
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
+.btn-danger-dark {
+    color: #fff;
+    background: linear-gradient(180deg, #ef5350, #d32f2f);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+}
+.btn-danger-dark:hover {
+    filter: brightness(1.05);
 }
 
-.btn-outline-primary {
-  background: transparent;
-  border: 2px solid var(--primary-purple) !important;
-  color: var(--text-purple);
+.btn.rounded-3 {
+    transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
 }
 
-.btn-outline-primary:hover {
-  background: var(--primary-purple);
-  color: white;
+.btn.rounded-3:hover {
+    transform: translateY(-1px);
 }
-
-.btn-outline-secondary {
-  background: transparent;
-  border: 2px solid var(--text-muted) !important;
-  color: var(--text-muted);
+.btn.rounded-3:active {
+    transform: translateY(0);
 }
-
-.btn-outline-secondary:hover {
-  background: var(--text-muted);
-  color: white;
-}
-
-.btn-light {
-  background: white;
-  color: var(--primary-purple);
-}
-
-.btn-group .btn {
-  border-radius: 0;
-}
-
-.btn-group .btn:first-child {
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-}
-
-.btn-group .btn:last-child {
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn.shadow-sm {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 /* Form Controls */
