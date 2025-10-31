@@ -3,9 +3,9 @@ import React from 'react';
 
 export default function NavbarControls() {
     return (
-        <nav className='navbar fixed-top border-bottom px-4 py-2'>
+        <nav className='navbar fixed-top px-4 py-2 header-container'>
             <div className='d-flex align-items-center gap-2'>
-                <h5 className='mb-0 fw-bold'>Strudel Reactor</h5>
+                <h3 className='mb-0 fw-bold'>Strudel Reactor</h3>
                 <small className='text-muted'>Live Coding Music Platform</small>
             </div>
 
