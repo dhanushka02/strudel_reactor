@@ -38,14 +38,10 @@ export function SetupButtons() {
             return;
         }
 
-        playBtn.addEventListener('click', () => globalEditor?.evaluate());
-        stopBtn.addEventListener('click', () => globalEditor?.stop());
-        procBtn.addEventListener('click', () => {
-            if (globalEditor) {
-                Proc();
-                globalEditor.evaluate();
-            }
-        });
+        playBtn.onclick = () => globalEditor?.evaluate();
+        stopBtn.onclick = () => globalEditor?.stop();
+        procBtn.onclick = () => {console.log("Process"); Proc(false);};
+        procPlayBtn.onclick = () => {console.log("Process and Play"); Proc(true);};
     };
 
     requestAnimationFrame(bind);
@@ -66,12 +62,18 @@ if (typeof window !== 'undefined') {
     window.ProcAndPlay = ProcAndPlay;
 }
 
-export function Proc() {
+export function Proc(doPlay = false) {
+
+    if (!globalEditor) return;
 
     let proc_text = document.getElementById('proc').value
+    if (!proc_text) return;
+
     let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
     ProcessText(proc_text);
     globalEditor.setCode(proc_text_replaced)
+
+    if (doPlay) setTimeout(() => globalEditor.evaluate(), 0);
 }
 
 export function ProcessText(match, ...args) {
@@ -157,51 +159,7 @@ return (
             </div>
         </div>
     </div>
-    // <div>
-    //     <h2>Strudel Demo</h2>
-    //     <main>
-
-    //         <div className="container-fluid">
-    //             <div className="row">
-    //                 <div className="col-md-8" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-    //                     <label htmlFor="exampleFormControlTextarea1" className="form-label">Text to preprocess:</label>
-    //                     <textarea className="form-control" rows="15" id="proc" ></textarea>
-    //                 </div>
-    //                 <div className="col-md-4">
-
-    //                     <nav>
-    //                         <button id="process" className="btn btn-outline-primary">Preprocess</button>
-    //                         <button id="process_play" className="btn btn-outline-primary">Proc & Play</button>
-    //                         <br />
-    //                         <button id="play" className="btn btn-outline-primary">Play</button>
-    //                         <button id="stop" className="btn btn-outline-primary">Stop</button>
-    //                     </nav>
-    //                 </div>
-    //             </div>
-    //             <div className="row">
-    //                 <div className="col-md-8" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-    //                     <div id="editor" />
-    //                     <div id="output" />
-    //                 </div>
-    //                 <div className="col-md-4">
-    //                     <div className="form-check">
-    //                         <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" onChange={ProcAndPlay} defaultChecked />
-    //                         <label className="form-check-label" htmlFor="flexRadioDefault1">
-    //                             p1: ON
-    //                         </label>
-    //                     </div>
-    //                     <div className="form-check">
-    //                         <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onChange={ProcAndPlay} />
-    //                         <label className="form-check-label" htmlFor="flexRadioDefault2">
-    //                             p1: HUSH
-    //                         </label>
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //         <canvas id="roll"></canvas>
-    //     </main >
-    // </div >
+    
 );
 
 

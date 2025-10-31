@@ -10,10 +10,10 @@ export default function NavbarControls() {
             </div>
 
             <div className='d-flex align-items-center gap-2'>
-                <button id="process" className='btn btn-outline-secondary'>Process</button>
-                <button id="process-play" className='btn btn-primary btn-sm'>Proc &amp; Play</button>
-                <button id="play" className='btn btn-outline-success btn-sm'>Play</button>
-                <button id="stop" className='btn btn-outline-danger btn-sm'>Stop</button>
+                <button id="process" type='button'  className='btn btn-secondary'>Process</button>
+                <button id="process-play" type='button' className='btn btn-primary btn-sm'>Process &amp; Play</button>
+                <button id="play" type='button' className='btn btn-success btn-sm'>Play</button>
+                <button id="stop" type='button' className='btn btn-danger btn-sm'>Stop</button>
             </div>
         </nav>
     );
