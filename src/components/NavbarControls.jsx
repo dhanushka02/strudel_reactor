@@ -1,13 +1,19 @@
 // src/components/NavbarControls.jsx
 import React from 'react';
-import { Play, Square, Wand2 } from 'lucide-react';
+import { Play, Square, Wand2, Music2 } from 'lucide-react';
 
 export default function NavbarControls() {
     return (
-        <nav className='navbar fixed-top px-4 py-2 header-container'>
+        <nav className='navbar fixed-top px-4 py-3 header-container'>
             <div className='d-flex align-items-center gap-2'>
-                <h3 className='mb-0 fw-bold'>Strudel Reactor</h3>
-                <small className='text-muted'>Live Coding Music Platform</small>
+                <div className='logo-icon me-3'>
+                    <Music2 size={24} className='text-accent' />
+                </div>
+                <div className=' d-flex flex-column'>
+                    <h1 className='mb-0 h3'>Strudel Reactor</h1>
+                    <small className='text-muted brand-subtitle mt-1'>Live Coding Music Platform</small>
+                </div>
+                
             </div>
 
             <div className='d-flex align-items-center gap-3'>

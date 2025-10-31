@@ -53,6 +53,32 @@ body {
     -webkit-backdrop-filter: blur(10px);
 }
 
+.header-container h1,
+.header-container small {
+    color: white;
+}
+
+.brand-subtitle {
+    color: var(--text-muted);
+    line-height: 1.1;
+    letter-spacing: 0.2px;
+    margin-right: 5px;
+    display: block;
+}
+
+/* Logo Icon */
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-pink) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+}
+
 
 /* Card Styles */
 .card {
@@ -93,6 +119,8 @@ body {
     resize: vertical;
     min-height: 400px;
     color: var(--text-light);
+    font-weight: 550;
+    
 }
 
 .code-editor:focus {
@@ -220,12 +248,15 @@ body {
   border-radius: 2px;
 } 
 
+
+
 /* Button Styles*/
 
 .btn-slate {
     color: #e7e9ff;
     background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(0,0,0,.18));
     border: 1.5px solid rgba(255, 255, 255, .16);
+    font-size: larger;
 
 }
 .btn-slate:hover {
@@ -237,6 +268,7 @@ body {
     background: transparent;
     border: 1.5px solid color-mix(in oklab, var(--accent) 60%, transparent);
     box-shadow: 0 6px 18px rgba(177, 143, 255, 0.20);
+    font-size: larger;
 }
 .btn-ghost-accent:hover {
     background: rgba(124, 92, 255, 0.08);
@@ -248,6 +280,7 @@ body {
     color: #fff;
     background: linear-gradient(180deg, #2ebf71, #1f9a56);
     border: 1.5px solid rgba(255, 255, 255, 0.14);
+    font-size: larger;
 }
 .btn-success-dark:hover {
     filter: brightness(1.05);
@@ -257,6 +290,7 @@ body {
     color: #fff;
     background: linear-gradient(180deg, #ef5350, #d32f2f);
     border: 1.5px solid rgba(255, 255, 255, 0.14);
+    font-size: larger;
 }
 .btn-danger-dark:hover {
     filter: brightness(1.05);
