@@ -10,13 +10,7 @@ export default function PreprocessorEditor() {
             </div>
             <div className="row mb-2">
                 <div className="col">
-                    <span className="text-muted"></span>
-                </div>
-                <div className="col">
                     <label htmlFor="proc" className="form-label">Text to preprocess</label>
-                </div>
-                <div className="col">
-                    <button className="btn btn-success">Playing</button>
                 </div>
             </div>
             

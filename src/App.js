@@ -1,7 +1,7 @@
 import './App.css';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StrudelMirror } from '@strudel/codemirror';
-import { evalScope } from '@strudel/core';
+import { evalScope, evaluate } from '@strudel/core';
 import { drawPianoroll } from '@strudel/draw';
 import { initAudioOnFirstClick } from '@strudel/webaudio';
 import { transpiler } from '@strudel/transpiler';
@@ -9,8 +9,6 @@ import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/w
 import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from './assets/tunes';
 import console_monkey_patch, { getD3Data } from './console-monkey-patch';
-
-import "./styles/layout.css";
 
 
 import NavbarControls from './components/NavbarControls';
@@ -24,6 +22,7 @@ let globalEditor = null;
 const handleD3Data = (event) => {
     console.log(event.detail);
 };
+
 
 export function SetupButtons() {
 
@@ -89,6 +88,31 @@ export function ProcessText(match, ...args) {
 export default function StrudelDemo() {
 
 const hasRun = useRef(false);
+const [isPlaying, setIsPlaying] = useState(false);
+
+const handleProcess = () => {
+    if (isPlaying) return;
+    Proc(false);
+}
+
+const handleProcPlay = () => {
+    if (isPlaying) return;
+    Proc(true);
+    setIsPlaying(true);
+    
+};
+
+const handlePlay = () => {
+    if (isPlaying) return;
+    globalEditor?.evaluate();
+    setIsPlaying(true);
+};
+
+const handleStop = () => {
+    globalEditor?.stop();
+    setIsPlaying(false);
+}
+
 
 useEffect(() => {
 
@@ -103,6 +127,7 @@ useEffect(() => {
             canvas.height = canvas.height * 2;
             const drawContext = canvas.getContext('2d');
             const drawTime = [-2, 2]; // time window of drawn haps
+
             globalEditor = new StrudelMirror({
                 defaultOutput: webaudioOutput,
                 getTime: () => getAudioContext().currentTime,
@@ -123,9 +148,10 @@ useEffect(() => {
                 },
             });
             
-        document.getElementById('proc').value = stranger_tune
-        SetupButtons()
-        Proc()
+        const ta = document.getElementById('proc');
+        if (ta) ta.value = stranger_tune;
+        Proc(false);
+        
     }
 
 }, []);
@@ -133,8 +159,14 @@ useEffect(() => {
 
 return (
     <div className='App'>
-        {/* Top Navbar */
-        <NavbarControls />}
+        {/* Top Navbar */}
+        <NavbarControls
+          onProcess={handleProcess}
+          onProcPlay={handleProcPlay}
+          onPlay={handlePlay}
+          onStop={handleStop}
+          isPlaying={isPlaying}
+        />
 
         {/* Main Content */}
         <div className="container-fluid px-4 py-3">
@@ -147,7 +179,7 @@ return (
                     </div>
                 </div>
                 <div className='col-lg-4 col-md-12'>
-                        <ControlsPanel />
+                        <ControlsPanel disabled={isPlaying} />
                 </div>
             </div>
 

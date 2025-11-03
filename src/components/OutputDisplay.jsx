@@ -11,7 +11,7 @@ export default function OutputDisplay() {
             {/* REPL Output Area */}
             <div id="output-container" className="code-output-container repl-shell">
                 <div id="editor" />
-            </div>        
+            </div>
         </div>
     );
 }
