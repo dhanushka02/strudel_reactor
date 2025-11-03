@@ -78,9 +78,9 @@ export function Proc(doPlay = false) {
 export function ProcessText(match, ...args) {
 
     let replace = ""
-    if (document.getElementById('flexRadioDefault2').checked) {
-        replace = "_"
-    }
+    // if (document.getElementById('flexRadioDefault2').checked) {
+    //     replace = "_"
+    // }
 
     return replace
 }
@@ -179,7 +179,7 @@ return (
                     </div>
                 </div>
                 <div className='col-lg-4 col-md-12'>
-                        <ControlsPanel disabled={isPlaying} />
+                        <ControlsPanel />
                 </div>
             </div>
 

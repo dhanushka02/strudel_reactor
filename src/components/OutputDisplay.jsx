@@ -5,7 +5,7 @@ export default function OutputDisplay() {
         <div className="card p-3 mb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h4 className="fw-bold">Strudel REPL Output</h4>
-                <span className="badge bg-light text-dark border">Stopped</span>
+                <small className="text-muted">Real-time output from the Strudel REPL</small>
             </div>
 
             {/* REPL Output Area */}
