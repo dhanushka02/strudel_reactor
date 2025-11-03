@@ -18,6 +18,26 @@
     --nav-shadow: 0 8px 24px rgba(8, 6, 18, 0.45);
     --accent: #b18fff;
     --accent-2: #7c5cff;
+
+    /* active button colors */
+    --btn-play-bg: #32a65e;
+    --btn-play-border: #2b8e51;
+
+    --btn-stop-bg: #b04242;
+    --btn-stop-border: #8e3434;
+
+    --btn-proc-bg: rgba(26, 22, 55, 0.85);
+    --btn-proc-border: #7c5cff;
+    --btn-proc-glow: 0 0 0 2px rgba(124, 92, 255, .25);
+
+    /* disabled button colors */
+    --btn-disabled-bg: rgba(255, 255, 255, 0.06);
+    --btn-disabled-border: rgba(255, 255, 255, 0.10);
+    --btn-disabled-text: rgba(255, 255, 255, 0.40);
+    --btn-disabled-icon: rgba(255, 255, 255, 0.35);
+    --btn-disabled-shadow: none;
+    --btn-disabled-filter: grayscale(40%) opacity(60%);
+
 }
 
 /* Global Styles */
@@ -201,7 +221,78 @@ body {
 
 /* Button Styles*/
 
-.btn-slate {
+/* process button */
+.btn-proc {
+    background: var(--btn-proc-bg);
+    border: 1px solid var(--btn-proc-border);
+    color: #eae6ff;
+    box-shadow: var(--btn-proc-glow);
+}
+.btn-proc:hover {
+    filter: brightness(1.05);
+}
+
+/* procsss and play button  */
+.btn-procplay {
+    background: var(--btn-proc-bg);
+    border: 2px solid var(--btn-proc-border);
+    color: #cfc3ff;
+    box-shadow: 0 0 0 2px rgba(124, 92, 255 ,.10);
+}
+.btn-procplay:hover {
+    filter: brightness(1.05);
+}
+
+/* Play */
+.btn-play {
+    background: var(--btn-play-bg);
+    border: 2px solid var(--btn-play-border);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(50, 166, 94, .25);
+}
+.btn-play:hover {
+    filter: brightness(1.06);
+    background-color: #2f7f5e;
+}
+
+/* Stop */
+.btn-stop {
+    background: var(--btn-stop-bg);
+    border: 2px solid var(--btn-stop-border);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(176, 66, 66, .25);
+}
+.btn-stop:hover {
+    filter: brightness(1.06);
+    background-color: #9e3333;
+}
+
+/* btn disabled */
+.btn:disabled,
+.btn[disabled],
+.btn.is-disabled,
+.btn[aria-disabled="true"] svg {
+    color: var(--btn-disabled-icon) !important;
+    fill: var(--btn-disabled-icon) !important;
+}
+
+.btn:disabled::after,
+.btn[disabled]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 6px,
+        rgba(255, 255, 255, 0.06) 6px,
+        rgba(255, 255, 255, 0.06) 12px
+    );
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* .btn-slate {
     color: #e7e9ff;
     background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(0,0,0,.18));
     border: 1.5px solid rgba(255, 255, 255, .16);
@@ -257,7 +348,7 @@ body {
 }
 .btn.shadow-sm {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-}
+} */
 
 /* Form Controls */
 .form-label {

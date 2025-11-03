@@ -17,19 +17,19 @@ export default function NavbarControls({ onProcess, onProcPlay, onPlay, onStop, 
             </div>
 
             <div className='d-flex align-items-center gap-3'>
-                <button id="process" type='button'  className='btn btn-slate btn-sm rounded-3 shadow-sm' onClick={onProcess}>
+                <button id="process" type='button'  className='btn btn-proc position-relative' onClick={onProcess}>
                     <Wand2 size={16} className='me-2' />
                     Process
                 </button>
-                <button id="process-play" type='button' className='btn btn-ghost-accent btn-sm rounded-3 shadow-sm' onClick={onProcPlay} disabled={isPlaying}>
+                <button id="process-play" type='button' className='btn btn-procplay position-relative' onClick={onProcPlay} disabled={isPlaying}>
                     <Wand2 size={16} className='me-2' />
                     Process &amp; Play
                 </button>
-                <button id="play" type='button' className='btn btn-success-dark btn-sm rounded-3 shadow-sm' onClick={onPlay} disabled={isPlaying}>
+                <button id="play" type='button' className='btn btn-play position-relative' onClick={onPlay} disabled={isPlaying}>
                     <Play size={16} className='me-2' />
                     Play
                 </button>
-                <button id="stop" type='button' className='btn btn-danger-dark btn-sm rounded-3 shadow-sm' onClick={onStop} disabled={!isPlaying}>
+                <button id="stop" type='button' className='btn btn-stop position-relative' onClick={onStop} disabled={!isPlaying}>
                     <Square size={16} className='me-2' />
                     Stop
                 </button>
