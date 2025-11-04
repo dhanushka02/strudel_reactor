@@ -61,7 +61,17 @@ if (typeof window !== 'undefined') {
     window.ProcAndPlay = ProcAndPlay;
 }
 
-export function Proc(doPlay = false, {speed = 1, volume = 0.75} = {}) {
+export function Proc(
+    doPlay = false,
+    {
+        speed = 1, 
+        volume = 0.75,
+        kickOn = true,
+        chatOn = true,
+        snareOn = true,
+        bassOn = true,
+        arpOn = true,
+    } = {}) {
 
     if (!globalEditor) return;
 
@@ -71,9 +81,15 @@ export function Proc(doPlay = false, {speed = 1, volume = 0.75} = {}) {
     let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
     ProcessText(proc_text);
 
-    proc_text_replaced = proc_text_replaced
-        .replaceAll('<SPEED>', String(speed))
-        .replaceAll('<VOLUME>', String(volume));
+    proc_text_replaced = proc_text_replaced.replaceAll('<SPEED>', String(speed));
+    proc_text_replaced = proc_text_replaced.replaceAll('<VOLUME>', String(volume));
+
+    proc_text_replaced = proc_text_replaced.replaceAll('<KICK_ON>', String(!!kickOn));
+    proc_text_replaced = proc_text_replaced.replaceAll('<CHAT_ON>', String(!!chatOn));
+    proc_text_replaced = proc_text_replaced.replaceAll('<SNARE_ON>', String(!!snareOn));
+    proc_text_replaced = proc_text_replaced.replaceAll('<BASS_ON>', String(!!bassOn));
+    proc_text_replaced = proc_text_replaced.replaceAll('<ARP_ON>', String(!!arpOn));
+
 
     globalEditor.setCode(proc_text_replaced)
 

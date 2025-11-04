@@ -2,7 +2,26 @@
 
 const speeds = [0.5, 1, 1.5, 2];
 
-export default function ControlsPanel({disabled = false, volume, onVolume, speed, onSpeed, p1, onP1, p2, onP2 }) {
+export default function ControlsPanel(
+    {
+        disabled = false,
+        volume, onVolume,
+        speed, onSpeed,
+        kickOn, onKick,
+        chatOn, onChat,
+        snareOn, onSnare,
+        bassOn, onBass,
+        arpOn, onArp,
+  
+    }) {
+
+        const instruments = [
+            { key: 'kick', label: 'Kick', checked: kickOn, onChange: onKick},
+            { key: 'chat', label: 'Chat', checked: chatOn, onChange: onChat},
+            { key: 'snare', label: 'Snare', checked: snareOn, onChange: onSnare},
+            { key: 'bass', label: 'Bass', checked: bassOn, onChange: onBass},
+            { key: 'arp', label: 'Arp', checked: arpOn, onChange: onArp},
+        ]
 
     
     
@@ -17,64 +36,28 @@ export default function ControlsPanel({disabled = false, volume, onVolume, speed
                     {/* Segmented Tabs */}
                     <div className="cp-tabs" role="tablist" aria-label="Control Tabs">
                         <button className="cp-tab" role="tab" aria-selected="true" >Instruments</button>
-                        <button className="cp-tab" role="tab" aria-selected="false" >Effects</button>
+                        <button className="cp-tab" role="tab" aria-selected="false" disabled >Effects</button>
                     </div>
                 </div>
 
-                {/* Pattern 1 */}
+                {/* Instrument Controls */}
                 <section className="cp-pattern mb-3">
-                    <h6 className="mb-2">Pattern 1 (p1)</h6>
-                    <div className="cp-radio">
-                        <label className="position-relative">
-                            <input type="radio" name="p1" checked={p1 === 'on'} onChange={() => onP1?.('on')} />
-                            <div className="tile">
-                                <span className="dot" />
-                                <span className="label">ON</span>
-                            </div>
-                        </label>
-                        <label className="position-relative">
-                            <input
-                            type="radio"
-                            name="p1"
-                            checked={p1 === 'hush'}
-                            onChange={() => onP1?.('hush')}
-                            />
-                            <div className="tile">
-                            <span className="dot" />
-                            <span className="label">HUSH</span>
-                            </div>
-                        </label>
-                    </div>
-                </section>
+                    <h6 className="mb-2">Instruments</h6>
 
-                {/* Pattern 2 */}
-                <section className="cp-pattern mb-3">
-                    <h6 className="mb-2">Pattern 2 (p2)</h6>
-                    <div className="cp-radio">
-                        <label className="position-relative">
+                    <div className="d-grid gap-2">
+                    {instruments.map(({ key, label, checked, onChange }) => (
+                        <label key={key} className="cp-toggle-row">
+                        <span className="cp-toggle-label">{label}</span>
                         <input
-                        type="radio"
-                        name="p2"
-                        checked={p2 === 'on'}
-                        onChange={() => onP2?.('on')}
+                            type="checkbox"
+                            className="cp-toggle-input"
+                            checked={!!checked}
+                            onChange={e => onChange?.(e.target.checked)}
+                            aria-label={`${label} ${checked ? 'on' : 'off'}`}
                         />
-                        <div className="tile">
-                        <span className="dot" />
-                        <span className="label">ON</span>
-                        </div>
-                    </label>
-                    <label className="position-relative">
-                        <input
-                        type="radio"
-                        name="p2"
-                        checked={p2 === 'hush'}
-                        onChange={() => onP2?.('hush')}
-                        />
-                        <div className="tile">
-                        <span className="dot" />
-                        <span className="label">HUSH</span>
-                        </div>
-                    </label>
+                        <span className="cp-toggle-switch" aria-hidden />
+                        </label>
+                    ))}
                     </div>
                 </section>
 
