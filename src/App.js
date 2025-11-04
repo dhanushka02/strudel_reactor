@@ -61,7 +61,7 @@ if (typeof window !== 'undefined') {
     window.ProcAndPlay = ProcAndPlay;
 }
 
-export function Proc(doPlay = false) {
+export function Proc(doPlay = false, {speed = 1, volume = 0.75} = {}) {
 
     if (!globalEditor) return;
 
@@ -70,6 +70,11 @@ export function Proc(doPlay = false) {
 
     let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
     ProcessText(proc_text);
+
+    proc_text_replaced = proc_text_replaced
+        .replaceAll('<SPEED>', String(speed))
+        .replaceAll('<VOLUME>', String(volume));
+
     globalEditor.setCode(proc_text_replaced)
 
     if (doPlay) setTimeout(() => globalEditor.evaluate(), 0);
@@ -90,14 +95,47 @@ export default function StrudelDemo() {
 const hasRun = useRef(false);
 const [isPlaying, setIsPlaying] = useState(false);
 
+const [p1, setP1] = useState(true);
+const [p2, setP2] = useState(false);
+
+const [volume, setVolume] = useState(0.75);
+const [speed, setSpeed] = useState(1);
+
+
+function replEval(code) {
+    const repl = globalEditor?.repl;
+    if (!repl) return;
+
+    if (typeof repl.evaluate === 'function') return repl.evaluate(code);
+    if (typeof repl.eval === 'function') return repl.eval(code);
+
+    globalEditor.setCode(`${globalEditor.getCode()}\n${code}`);
+    return globalEditor.evaluate();
+}
+
+const BASE_CPS = 135/60/4;
+
+const handleVolumeChange = (v) => {
+    setVolume(v);
+    replEval(`globalThis.VOLUME = ${v}`);
+};
+
+const handleSpeedChange = (mult) => {
+    setSpeed(mult);
+    replEval(`
+        globalThis.SPEED = ${mult};
+        setcps(${BASE_CPS} * globalThis.SPEED);
+    `);
+};
+
 const handleProcess = () => {
     if (isPlaying) return;
-    Proc(false);
+    Proc(false, {speed, volume});
 }
 
 const handleProcPlay = () => {
     if (isPlaying) return;
-    Proc(true);
+    Proc(true, {speed, volume});
     setIsPlaying(true);
     
 };
@@ -142,7 +180,8 @@ useEffect(() => {
                         import('@strudel/draw'),
                         import('@strudel/mini'),
                         import('@strudel/tonal'),
-                        import('@strudel/webaudio'),
+                        import('@strudel/webaudio')
+                        
                     );
                     await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
                 },
@@ -179,7 +218,12 @@ return (
                     </div>
                 </div>
                 <div className='col-lg-4 col-md-12'>
-                        <ControlsPanel />
+                        <ControlsPanel
+                        p1={p1} onP1={setP1}
+                        p2={p2} onP2={setP2}
+                        volume={volume} onVolume={handleVolumeChange}
+                        speed={speed} onSpeed={handleSpeedChange}
+                        />
                 </div>
             </div>
 
