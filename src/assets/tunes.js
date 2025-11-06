@@ -76,5 +76,5 @@ $: arrange(
 );
 
 // master volume
-all(x => x.postgain(globalThis.VOLUME));
+all(x => x.postgain((globalThis.VOLUME ?? 0.75)));
 `;

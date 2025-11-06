@@ -12,7 +12,7 @@ export default function ControlsPanel(
         snareOn, onSnare,
         bassOn, onBass,
         arpOn, onArp,
-  
+        
     }) {
 
         const instruments = [

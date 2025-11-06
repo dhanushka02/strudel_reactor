@@ -143,9 +143,12 @@ const [arpOn, setArpOn] = useState(true);
 
 const BASE_CPS = 135/60/4;
 
-const handleVolumeChange = (v) => {
-    setVolume(v);
-    replEval(`globalThis.VOLUME = ${v}`);
+const handleVolumeChange = (val) => {
+    const n = Math.max(0, Math.min(1, Number(val)));
+    setVolume(n);
+    replEval(`globalThis.VOLUME = ${n}`);
+
+    globalEditor?.evaluate();
 };
 
 const handleSpeedChange = (mult) => {
@@ -224,6 +227,7 @@ useEffect(() => {
             
         const ta = document.getElementById('proc');
         if (ta) ta.value = stranger_tune;
+        replEval(`globalThis.VOLUME = ${volume ?? 0.75};`);
         Proc(false);
         
     }
