@@ -16,11 +16,11 @@ export default function ControlsPanel(
     }) {
 
         const instruments = [
-            { key: 'kick', label: 'Kick', checked: kickOn, onChange: onKick},
-            { key: 'chat', label: 'Chat', checked: chatOn, onChange: onChat},
-            { key: 'snare', label: 'Snare', checked: snareOn, onChange: onSnare},
-            { key: 'bass', label: 'Bass', checked: bassOn, onChange: onBass},
-            { key: 'arp', label: 'Arp', checked: arpOn, onChange: onArp},
+            { id: 'kick', label: 'Kick', checked: kickOn, onChange: onKick},
+            { id: 'chat', label: 'Chat', checked: chatOn, onChange: onChat},
+            { id: 'snare', label: 'Snare', checked: snareOn, onChange: onSnare},
+            { id: 'bass', label: 'Bass', checked: bassOn, onChange: onBass},
+            { id: 'arp', label: 'Arp', checked: arpOn, onChange: onArp},
         ]
 
     
@@ -45,10 +45,11 @@ export default function ControlsPanel(
                     <h6 className="mb-2">Instruments</h6>
 
                     <div className="d-grid gap-2">
-                    {instruments.map(({ key, label, checked, onChange }) => (
-                        <label key={key} className="cp-toggle-row">
+                    {instruments.map(({ id, label, checked, onChange }) => (
+                        <label key={id} className="cp-toggle-row">
                         <span className="cp-toggle-label">{label}</span>
                         <input
+                            id={`ins-${id}`}
                             type="checkbox"
                             className="cp-toggle-input"
                             checked={!!checked}

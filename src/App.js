@@ -19,6 +19,20 @@ import ControlsPanel from './components/ControlsPanel';
 
 let globalEditor = null;
 
+function replEval(code) {
+    const repl = globalEditor?.repl;
+    if (!repl) return;
+
+    if (typeof repl.evaluate === 'function') {
+        return repl.evaluate(code);
+    }
+
+    // Fallback: append + evaluate
+    const cur = typeof globalEditor.getCode === 'function' ? globalEditor.getCode() : '';
+    globalEditor.setCode(`${cur}\n${code}`);
+    return globalEditor.evaluate();
+}
+
 const handleD3Data = (event) => {
     console.log(event.detail);
 };
@@ -64,7 +78,7 @@ if (typeof window !== 'undefined') {
 export function Proc(
     doPlay = false,
     {
-        speed = 1, 
+        speed = 1,
         volume = 0.75,
         kickOn = true,
         chatOn = true,
@@ -75,23 +89,23 @@ export function Proc(
 
     if (!globalEditor) return;
 
-    let proc_text = document.getElementById('proc').value
-    if (!proc_text) return;
+    let proc_text = document.getElementById('proc')
+    if (!proc_text?.value) return;
 
-    let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
-    ProcessText(proc_text);
+    globalEditor.setCode(proc_text.value);
 
-    proc_text_replaced = proc_text_replaced.replaceAll('<SPEED>', String(speed));
-    proc_text_replaced = proc_text_replaced.replaceAll('<VOLUME>', String(volume));
+    replEval(`
+    globalThis.SPEED  = ${speed};
+    globalThis.VOLUME = ${volume};
 
-    proc_text_replaced = proc_text_replaced.replaceAll('<KICK_ON>', String(!!kickOn));
-    proc_text_replaced = proc_text_replaced.replaceAll('<CHAT_ON>', String(!!chatOn));
-    proc_text_replaced = proc_text_replaced.replaceAll('<SNARE_ON>', String(!!snareOn));
-    proc_text_replaced = proc_text_replaced.replaceAll('<BASS_ON>', String(!!bassOn));
-    proc_text_replaced = proc_text_replaced.replaceAll('<ARP_ON>', String(!!arpOn));
+    globalThis.KICK   = ${kickOn  ? 1 : 0};
+    globalThis.CHAT   = ${chatOn  ? 1 : 0};
+    globalThis.SNARE  = ${snareOn ? 1 : 0};
+    globalThis.BASS   = ${bassOn  ? 1 : 0};
+    globalThis.ARP    = ${arpOn   ? 1 : 0};
 
-
-    globalEditor.setCode(proc_text_replaced)
+    setcps((135/60/4) * globalThis.SPEED);
+    `);
 
     if (doPlay) setTimeout(() => globalEditor.evaluate(), 0);
 }
@@ -117,17 +131,15 @@ const [p2, setP2] = useState(false);
 const [volume, setVolume] = useState(0.75);
 const [speed, setSpeed] = useState(1);
 
+const [kickOn, setKickOn] = useState(true);
+const [chatOn, setChatOn] = useState(true);
+const [snareOn, setSnareOn] = useState(true);
+const [bassOn, setBassOn] = useState(true);
+const [arpOn, setArpOn] = useState(true);
 
-function replEval(code) {
-    const repl = globalEditor?.repl;
-    if (!repl) return;
 
-    if (typeof repl.evaluate === 'function') return repl.evaluate(code);
-    if (typeof repl.eval === 'function') return repl.eval(code);
 
-    globalEditor.setCode(`${globalEditor.getCode()}\n${code}`);
-    return globalEditor.evaluate();
-}
+
 
 const BASE_CPS = 135/60/4;
 
@@ -146,14 +158,12 @@ const handleSpeedChange = (mult) => {
 
 const handleProcess = () => {
     if (isPlaying) return;
-    Proc(false, {speed, volume});
-}
-
+    Proc(false, { speed, volume, kickOn, chatOn, snareOn, bassOn, arpOn });
+};
 const handleProcPlay = () => {
     if (isPlaying) return;
-    Proc(true, {speed, volume});
+    Proc(true,  { speed, volume, kickOn, chatOn, snareOn, bassOn, arpOn });
     setIsPlaying(true);
-    
 };
 
 const handlePlay = () => {
@@ -166,6 +176,15 @@ const handleStop = () => {
     globalEditor?.stop();
     setIsPlaying(false);
 }
+
+// Live instruments toggling
+const reeval = () => globalEditor?.evaluate();
+const onKick = (on) => { setKickOn(on); replEval(`globalThis.KICK = ${on ? 1 : 0}`); reeval(); };
+const onChat = (on) => { setChatOn(on); replEval(`globalThis.CHAT = ${on ? 1 : 0}`); reeval(); };
+const onSnare = (on) => { setSnareOn(on); replEval(`globalThis.SNARE = ${on ? 1 : 0}`); reeval(); };
+const onBass = (on) => { setBassOn(on); replEval(`globalThis.BASS = ${on ? 1 : 0}`); reeval(); };
+const onArp = (on) => { setArpOn(on); replEval(`globalThis.ARP = ${on ? 1 : 0}`); reeval(); };
+
 
 
 useEffect(() => {
@@ -216,11 +235,11 @@ return (
     <div className='App'>
         {/* Top Navbar */}
         <NavbarControls
-          onProcess={handleProcess}
-          onProcPlay={handleProcPlay}
-          onPlay={handlePlay}
-          onStop={handleStop}
-          isPlaying={isPlaying}
+            onProcess={handleProcess}
+            onProcPlay={handleProcPlay}
+            onPlay={handlePlay}
+            onStop={handleStop}
+            isPlaying={isPlaying}
         />
 
         {/* Main Content */}
@@ -239,6 +258,12 @@ return (
                         p2={p2} onP2={setP2}
                         volume={volume} onVolume={handleVolumeChange}
                         speed={speed} onSpeed={handleSpeedChange}
+
+                        kickOn={kickOn} onKick={onKick}
+                        chatOn={chatOn} onChat={onChat}
+                        snareOn={snareOn} onSnare={onSnare}
+                        bassOn={bassOn} onBass={onBass}
+                        arpOn={arpOn} onArp={onArp}
                         />
                 </div>
             </div>

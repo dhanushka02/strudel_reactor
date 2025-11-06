@@ -420,6 +420,7 @@ body {
     background: rgba(255,255,255,.03);
     border: 1px solid rgba(180, 140, 255 ,.15);
     transition:background .2s,border-color .2s;
+    cursor: pointer;
 }
 .cp-toggle-row:hover {
     background: rgba(255, 255, 255, 0.05);
@@ -434,7 +435,9 @@ body {
 .cp-toggle-input {
     position: absolute;
     opacity: 0;
-    pointer-events: none;
+    inset: auto;
+    width: 0;
+    height: 0;
 }
 .cp-toggle-switch {
     display: inline-block;
