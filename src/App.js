@@ -181,12 +181,32 @@ const handleStop = () => {
 }
 
 // Live instruments toggling
-const reeval = () => globalEditor?.evaluate();
-const onKick = (on) => { setKickOn(on); replEval(`globalThis.KICK = ${on ? 1 : 0}`); reeval(); };
-const onChat = (on) => { setChatOn(on); replEval(`globalThis.CHAT = ${on ? 1 : 0}`); reeval(); };
-const onSnare = (on) => { setSnareOn(on); replEval(`globalThis.SNARE = ${on ? 1 : 0}`); reeval(); };
-const onBass = (on) => { setBassOn(on); replEval(`globalThis.BASS = ${on ? 1 : 0}`); reeval(); };
-const onArp = (on) => { setArpOn(on); replEval(`globalThis.ARP = ${on ? 1 : 0}`); reeval(); };
+
+const onKick = (on) => {
+    setKickOn(on);
+    replEval(`globalThis.KICK = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+const onChat = (on) => {
+    setChatOn(on);
+    replEval(`globalThis.CHAT = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+const onSnare = (on) => {
+    setSnareOn(on);
+    replEval(`globalThis.SNARE = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+const onBass = (on) => {
+    setBassOn(on);
+    replEval(`globalThis.BASS = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+const onArp = (on) => {
+    setArpOn(on);
+    replEval(`globalThis.ARP = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
+};
 
 
 
