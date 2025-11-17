@@ -126,20 +126,20 @@ export default function StrudelDemo() {
 const hasRun = useRef(false);
 const [isPlaying, setIsPlaying] = useState(false);
 
-const [p1, setP1] = useState(true);
-const [p2, setP2] = useState(false);
-
 const [volume, setVolume] = useState(0.75);
 const [speed, setSpeed] = useState(1);
+
+const [melodyVol, setMelodyVol] = useState(1);
+const [drumsVol, setDrumsVol] = useState(1);
+const [chordsVol, setChordsVol] = useState(1);
+const [bassVol, setBassVol] = useState(1);
+const [extraVol, setExtraVol] = useState(1);
 
 const [melodyOn, setMelodyOn] = useState(true);
 const [drumsOn,  setDrumsOn]  = useState(true);
 const [chordsOn, setChordsOn] = useState(true);
 const [bassOn,   setBassOn]   = useState(true);
 const [extraOn,  setExtraOn]  = useState(true);
-
-
-
 
 
 const BASE_CPS = 105/60/4;
@@ -213,6 +213,22 @@ const onExtra = (on) => {
     if (isPlaying) globalEditor?.evaluate();
 };
 
+// Live instrument volume sliders
+
+const makeVolHandler = (setter, globalName) => (val) => {
+    const n = Math.max(0, Math.min(1, Number(val)));
+    setter(n);
+    replEval(`globalThis.${globalName} = ${n};`);
+    if (isPlaying) {
+        globalEditor?.evaluate();
+    }
+};
+
+const handleMelodyVol = makeVolHandler(setMelodyVol, 'MELODY_VOL');
+const handleDrumsVol  = makeVolHandler(setDrumsVol,  'DRUMS_VOL');
+const handleChordsVol = makeVolHandler(setChordsVol, 'CHORDS_VOL');
+const handleBassVol   = makeVolHandler(setBassVol,   'BASS_VOL');
+const handleExtraVol  = makeVolHandler(setExtraVol,  'EXTRA_VOL');
 
 
 useEffect(() => {
@@ -283,8 +299,7 @@ return (
                 </div>
                 <div className='col-lg-4 col-md-12'>
                         <ControlsPanel
-                        p1={p1} onP1={setP1}
-                        p2={p2} onP2={setP2}
+
                         volume={volume} onVolume={handleVolumeChange}
                         speed={speed} onSpeed={handleSpeedChange}
 
@@ -293,6 +308,15 @@ return (
                         chordsOn={chordsOn} onChords={onChords}
                         bassOn={bassOn} onBass={onBass}
                         extraOn={extraOn} onExtra={onExtra}
+
+                        melodyVol={melodyVol} onMelodyVol={handleMelodyVol}
+                        drumsVol={drumsVol}   onDrumsVol={handleDrumsVol}
+                        chordsVol={chordsVol} onChordsVol={handleChordsVol}
+                        bassVol={bassVol}     onBassVol={handleBassVol}
+                        extraVol={extraVol}   onExtraVol={handleExtraVol}
+
+
+
                         />
                 </div>
             </div>

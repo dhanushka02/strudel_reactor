@@ -16,6 +16,12 @@ globalThis.CHORDS ??= 1;      // main chords on/off
 globalThis.BASS   ??= 1;      // bass root + bassline on/off
 globalThis.EXTRA  ??= 1;      // organ pad + arp guitar on/off
 
+globalThis.MELODY_VOL ??= 1;
+globalThis.DRUMS_VOL  ??= 1;
+globalThis.CHORDS_VOL ??= 1;
+globalThis.BASS_VOL   ??= 1;
+globalThis.EXTRA_VOL  ??= 1;
+
 // Tempo (105 BPM, scaled by SPEED) //
 const BASE_CPS = 105/60/4;
 setcps(BASE_CPS * globalThis.SPEED);
@@ -61,6 +67,10 @@ let m2 =
 // gated versions used in sections
 let leadA = gate(globalThis.MELODY, m1);
 let leadB = gate(globalThis.MELODY, m2);
+
+
+
+
 
 // -------------------- DRUMS (LinnDrum bank) --------------------
 
@@ -144,6 +154,17 @@ let bassline =
 
 let bassRoot = gate(globalThis.BASS, bass1note);
 let bassLine = gate(globalThis.BASS, bassline);
+
+leadA = leadA.postgain(globalThis.MELODY_VOL ?? 1);
+leadB = leadB.postgain(globalThis.MELODY_VOL ?? 1);
+
+drums = drums.postgain(globalThis.DRUMS_VOL ?? 1);
+
+chordsMain = chordsMain.postgain(globalThis.CHORDS_VOL ?? 1);
+
+bassRoot = bassRoot.postgain(globalThis.BASS_VOL ?? 1);
+bassLine = bassLine.postgain(globalThis.BASS_VOL ?? 1);
+arpLayer   = arpLayer.postgain(globalThis.EXTRA_VOL ?? 1);
 
 // -------------------- SONG SECTIONS --------------------
 
