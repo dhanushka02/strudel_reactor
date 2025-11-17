@@ -16,13 +16,10 @@ export default function ControlsPanel(
         chordsOn, onChords,
         bassOn, onBass,
         extraOn, onExtra,
-
-        // Instrument Volumes //
-        melodyVol, onMelodyVol,
-        drumsVol, onDrumsVol,
-        chordsVol, onChordsVol,
-        bassVol, onBassVol,
-        extraVol, onExtraVol,
+        
+        // FX
+        space, onSpace,
+        bright, onBright,
         
     }) {
         const [activeTab, setActiveTab] = useState('instruments');
@@ -48,7 +45,7 @@ export default function ControlsPanel(
                     {/* Segmented Tabs */}
                     <div className="cp-tabs" role="tablist" aria-label="Control Tabs">
                         <button className="cp-tab" role="tab" aria-selected={activeTab === 'instruments'} onClick={() => setActiveTab('instruments')}>Instruments</button>
-                        <button className="cp-tab" role="tab" aria-selected={activeTab === 'volume'} onClick={() => setActiveTab('volume')}>Volume</button>
+                        <button className="cp-tab" role="tab" aria-selected={activeTab === 'effects'} onClick={() => setActiveTab('effects')}>Effects</button>
                     </div>
                 </div>
 
@@ -76,15 +73,17 @@ export default function ControlsPanel(
                     </section>
                 )}
 
-                {activeTab === 'volume' && (
+                {activeTab === 'effects' && (
                     <section className="cp-pattern mb-3">
-                        <h6 className="mb-3">Volume Mixer</h6>
+                            <h6 className="mb-3">Effects</h6>
 
-                        {/* Instrument volumes */}
+                            {/* Space / Reverb */}
                             <div className="mb-3">
                                 <div className="d-flex justify-content-between">
-                                <label className="fw-semibold m-0">Melody</label>
-                                <span className="cp-value-badge">{Math.round((melodyVol ?? 0) * 100)}%</span>
+                                <label className="fw-semibold m-0">Space (Reverb)</label>
+                                <span className="cp-value-badge">
+                                    {Math.round((space ?? 0) * 100)}%
+                                </span>
                                 </div>
                                 <input
                                 className="cp-range"
@@ -92,63 +91,18 @@ export default function ControlsPanel(
                                 min="0"
                                 max="1"
                                 step="0.01"
-                                value={melodyVol}
-                                onChange={e => onMelodyVol?.(Number(e.target.value))}
+                                value={space}
+                                onChange={(e) => onSpace?.(Number(e.target.value))}
                                 />
                             </div>
 
-                            <div className="mb-3">
-                                <div className="d-flex justify-content-between">
-                                <label className="fw-semibold m-0">Drums</label>
-                                <span className="cp-value-badge">{Math.round((drumsVol ?? 0) * 100)}%</span>
-                                </div>
-                                <input
-                                className="cp-range"
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={drumsVol}
-                                onChange={e => onDrumsVol?.(Number(e.target.value))}
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <div className="d-flex justify-content-between">
-                                <label className="fw-semibold m-0">Chords</label>
-                                <span className="cp-value-badge">{Math.round((chordsVol ?? 0) * 100)}%</span>
-                                </div>
-                                <input
-                                className="cp-range"
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={chordsVol}
-                                onChange={e => onChordsVol?.(Number(e.target.value))}
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <div className="d-flex justify-content-between">
-                                <label className="fw-semibold m-0">Bass</label>
-                                <span className="cp-value-badge">{Math.round((bassVol ?? 0) * 100)}%</span>
-                                </div>
-                                <input
-                                className="cp-range"
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={bassVol}
-                                onChange={e => onBassVol?.(Number(e.target.value))}
-                                />
-                            </div>
-
+                            {/* Brightness */}
                             <div className="mb-4">
                                 <div className="d-flex justify-content-between">
-                                <label className="fw-semibold m-0">Extra (Organ + Arp)</label>
-                                <span className="cp-value-badge">{Math.round((extraVol ?? 0) * 100)}%</span>
+                                <label className="fw-semibold m-0">Brightness</label>
+                                <span className="cp-value-badge">
+                                    {Math.round((bright ?? 0) * 100)}%
+                                </span>
                                 </div>
                                 <input
                                 className="cp-range"
@@ -156,30 +110,29 @@ export default function ControlsPanel(
                                 min="0"
                                 max="1"
                                 step="0.01"
-                                value={extraVol}
-                                onChange={e => onExtraVol?.(Number(e.target.value))}
+                                value={bright}
+                                onChange={(e) => onBright?.(Number(e.target.value))}
                                 />
                             </div>
-
-                            {/* Master volume */}
-                            <div className="mb-1">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                <label className="m-0 fw-semibold">Master Volume</label>
-                                <span className="cp-value-badge">{Math.round(volume * 100)}%</span>
-                                </div>
-                                <input
-                                className="cp-range"
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
-                                value={volume}
-                                onChange={e => onVolume?.(Number(e.target.value))}
-                                aria-label="Master volume"
-                                />
-                            </div>
-                        </section>
+                    </section>
                 )}
+                {/*Master Volume */}
+                <div className="mb-1">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <label className="m-0 fw-semibold">Master Volume</label>
+                        <span className="cp-value-badge">{Math.round(volume * 100)}%</span>
+                    </div>
+                    <input
+                    className="cp-range"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={e => onVolume?.(Number(e.target.value))}
+                    aria-label="Master volume"
+                    />
+                </div>
 
                 {/* Speed */}
                 <div className="mb-1 speed-block">

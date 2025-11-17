@@ -16,11 +16,15 @@ globalThis.CHORDS ??= 1;      // main chords on/off
 globalThis.BASS   ??= 1;      // bass root + bassline on/off
 globalThis.EXTRA  ??= 1;      // organ pad + arp guitar on/off
 
-globalThis.MELODY_VOL ??= 1;
-globalThis.DRUMS_VOL  ??= 1;
-globalThis.CHORDS_VOL ??= 1;
-globalThis.BASS_VOL   ??= 1;
-globalThis.EXTRA_VOL  ??= 1;
+// FX controls (wired to "Effects" tab)
+globalThis.SPACE   ??= 0.6;   // 0..1  reverb amount
+globalThis.BRIGHT  ??= 0.5;   // 0..1  filter brightness
+
+globalThis.roomAmt = () =>
+  0.05 + (globalThis.SPACE ?? 0) * 1.2;           // 0.05–1.25 reverb
+
+globalThis.brightCut = () =>
+  500 + (globalThis.BRIGHT ?? 0.5) * 7500;        // 500–8000 Hz cutoff
 
 // Tempo (105 BPM, scaled by SPEED) //
 const BASE_CPS = 105/60/4;
@@ -28,6 +32,7 @@ setcps(BASE_CPS * globalThis.SPEED);
 
 // Helper: gate(on, pattern) – used by all toggles //
 const gate = (on, pat) => on ? pat : pat.mask("<0!999>");
+
 
 // -------------------- MELODY --------------------
 
@@ -39,8 +44,8 @@ let m1 =
     .fast(2)
     .attack(.025)
     .release(.2)
-    .lp(1000)
-    .room(".6:2")
+    .lp(brightCut())
+    .room(roomAmt())
     .postgain(1.5);
 
 // m2 – kalimba + guitar layer (1 bar loop)
@@ -52,19 +57,18 @@ let m2 =
         .legato(1.5)
         .attack(.025)
         .release(.2)
-        .lp(1000)
-        .room(".6:2")
+        .lp(brightCut())
+        .room(roomAmt())
         .postgain(2),
       x => x
         .s("gm_acoustic_guitar_steel:6")
         .clip(1.5)
         .release(.2)
-        .room(".6:2")
+        .room(roomAmt())
         .postgain(1)
     )
     .fast(2);
 
-// gated versions used in sections
 let leadA = gate(globalThis.MELODY, m1);
 let leadB = gate(globalThis.MELODY, m2);
 
@@ -76,23 +80,20 @@ let leadB = gate(globalThis.MELODY, m2);
 
 let dr =
   stack(
-    // Punchy kick pattern
     s("bd(3,8)")
-      .room(".3:2")
+      .room(roomAmt() * 0.5)
       .decay(0.4)
       .shape(0.3)
       .gain(1.2),
 
-    // Snare on the backbeat
     s("sd(2,8)")
-      .room(".3:2")
+      .room(roomAmt() * 0.6)
       .decay(0.35)
       .gain(0.9),
 
-    // Fast hi-hats for groove
     s("hh*16")
-      .lp(9000)
-      .hp(3000)
+      .lp(brightCut() + 2000)
+      .hp(1000 + (1 - (globalThis.BRIGHT ?? 0.5)) * 1000)
       .gain(0.7)
   );
 
@@ -100,7 +101,7 @@ let drums = gate(globalThis.DRUMS, dr);
 
 // -------------------- CHORDS / HARMONY --------------------
 
-// Shared chord progression definition (I–vi–IV–V in D major)
+// Shared chord progression definition
 const chordProg = "<0 0 0 0, -1 -1 -1 -1, 1 1 1 1, -2 -2 -2 -2>/2";
 
 // Main electric-piano chords
@@ -109,8 +110,8 @@ let chord =
     .scale("D:major")
     .s("gm_epiano1:6")
     .legato(1.4)
-    .lp(2500)
-    .room(".6:2")
+    .lp(brightCut())
+    .room(roomAmt())
     .postgain(2.0);
 
 let chordsMain = gate(globalThis.CHORDS, chord);
@@ -121,7 +122,8 @@ let chordArp =
     .scale("D4:major")
     .s("gm_electric_guitar_jazz:3")
     .legato(0.08)
-    .room(".6:2")
+    .lp(brightCut() + 1000)
+    .room(roomAmt())
     .postgain(1.6);
 
 let arpLayer = gate(globalThis.EXTRA, chordArp);
@@ -133,38 +135,27 @@ let bass1note =
   n("<0 -1 1 -2>/2")
     .scale("D1:major")
     .s("gm_lead_8_bass_lead:1")
-    .lp(800)
+    .lp(400 + brightCut() * 0.4)
     .clip(.1)
     .attack(.2)
     .release(.12)
-    .delay(".45:.1:.3")
-    .room(".6:2")
+    .room(roomAmt() * 0.6)
     .postgain(1.3);
 
 // Fast guitar-ish bassline
+
 let bassline =
   note("<[D2!28 Cs2!4] B1*32 [E2!28 D2!4] A1*32>/2")
     .s("gm_electric_bass_pick")
     .decay(.5)
     .velocity(rand.range(.7,1).fast(4))
-    .lp(1000)
+    .lp(600 + brightCut() * 0.4)
     .compressor("-20:20:10:.002:.02")
-    .room(".6:2")
+    .room(roomAmt() * 0.6)
     .postgain(1.5);
 
 let bassRoot = gate(globalThis.BASS, bass1note);
 let bassLine = gate(globalThis.BASS, bassline);
-
-leadA = leadA.postgain(globalThis.MELODY_VOL ?? 1);
-leadB = leadB.postgain(globalThis.MELODY_VOL ?? 1);
-
-drums = drums.postgain(globalThis.DRUMS_VOL ?? 1);
-
-chordsMain = chordsMain.postgain(globalThis.CHORDS_VOL ?? 1);
-
-bassRoot = bassRoot.postgain(globalThis.BASS_VOL ?? 1);
-bassLine = bassLine.postgain(globalThis.BASS_VOL ?? 1);
-arpLayer   = arpLayer.postgain(globalThis.EXTRA_VOL ?? 1);
 
 // -------------------- SONG SECTIONS --------------------
 

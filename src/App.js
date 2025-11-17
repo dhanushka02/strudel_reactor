@@ -85,6 +85,9 @@ export function Proc(
         chordsOn = true,
         bassOn = true,
         extraOn = true,
+
+        space = 0.6,
+        bright = 0.5,
     } = {}) {
 
     if (!globalEditor) return;
@@ -103,6 +106,9 @@ export function Proc(
     globalThis.CHORDS = ${chordsOn ? 1 : 0};
     globalThis.BASS   = ${bassOn   ? 1 : 0};
     globalThis.EXTRA  = ${extraOn  ? 1 : 0};
+
+    globalThis.SPACE   = ${space};
+    globalThis.BRIGHT  = ${bright};
 
 
     setcps((105/60/4) * globalThis.SPEED);
@@ -129,17 +135,16 @@ const [isPlaying, setIsPlaying] = useState(false);
 const [volume, setVolume] = useState(0.75);
 const [speed, setSpeed] = useState(1);
 
-const [melodyVol, setMelodyVol] = useState(1);
-const [drumsVol, setDrumsVol] = useState(1);
-const [chordsVol, setChordsVol] = useState(1);
-const [bassVol, setBassVol] = useState(1);
-const [extraVol, setExtraVol] = useState(1);
+
+const [space,  setSpace]  = useState(0.6);
+const [bright, setBright] = useState(0.5);
 
 const [melodyOn, setMelodyOn] = useState(true);
 const [drumsOn,  setDrumsOn]  = useState(true);
 const [chordsOn, setChordsOn] = useState(true);
 const [bassOn,   setBassOn]   = useState(true);
 const [extraOn,  setExtraOn]  = useState(true);
+
 
 
 const BASE_CPS = 105/60/4;
@@ -162,11 +167,11 @@ const handleSpeedChange = (mult) => {
 
 const handleProcess = () => {
     if (isPlaying) return;
-    Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn });
+    Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
 };
 const handleProcPlay = () => {
     if (isPlaying) return;
-    Proc(true,  { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn });
+    Proc(true,  { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
     setIsPlaying(true);
 };
 
@@ -190,9 +195,9 @@ const onMelody = (on) => {
 };
 
 const onDrums = (on) => {
-  setDrumsOn(on);
-  replEval(`globalThis.DRUMS = ${on ? 1 : 0}`);
-  if (isPlaying) globalEditor?.evaluate();
+    setDrumsOn(on);
+    replEval(`globalThis.DRUMS = ${on ? 1 : 0}`);
+    if (isPlaying) globalEditor?.evaluate();
 };
 
 const onChords = (on) => {
@@ -213,22 +218,23 @@ const onExtra = (on) => {
     if (isPlaying) globalEditor?.evaluate();
 };
 
-// Live instrument volume sliders
+// FX hanldlers
+const clamp01 = (v) => Math.max(0, Math.min(1, Number(v)));
 
-const makeVolHandler = (setter, globalName) => (val) => {
-    const n = Math.max(0, Math.min(1, Number(val)));
-    setter(n);
-    replEval(`globalThis.${globalName} = ${n};`);
-    if (isPlaying) {
-        globalEditor?.evaluate();
-    }
+const onSpace = (val) => {
+    const n = clamp01(val);
+    setSpace(n);
+    replEval(`globalThis.SPACE = ${n};`);
+    if (isPlaying) globalEditor?.evaluate();
 };
 
-const handleMelodyVol = makeVolHandler(setMelodyVol, 'MELODY_VOL');
-const handleDrumsVol  = makeVolHandler(setDrumsVol,  'DRUMS_VOL');
-const handleChordsVol = makeVolHandler(setChordsVol, 'CHORDS_VOL');
-const handleBassVol   = makeVolHandler(setBassVol,   'BASS_VOL');
-const handleExtraVol  = makeVolHandler(setExtraVol,  'EXTRA_VOL');
+const onBright = (val) => {
+    const n = clamp01(val);
+    setBright(n);
+    replEval(`globalThis.BRIGHT = ${n};`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+
 
 
 useEffect(() => {
@@ -269,7 +275,7 @@ useEffect(() => {
         const ta = document.getElementById('proc');
         if (ta) ta.value = stranger_tune;
         replEval(`globalThis.VOLUME = ${volume ?? 0.75};`);
-        Proc(false);
+        Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
         
     }
 
@@ -309,12 +315,8 @@ return (
                         bassOn={bassOn} onBass={onBass}
                         extraOn={extraOn} onExtra={onExtra}
 
-                        melodyVol={melodyVol} onMelodyVol={handleMelodyVol}
-                        drumsVol={drumsVol}   onDrumsVol={handleDrumsVol}
-                        chordsVol={chordsVol} onChordsVol={handleChordsVol}
-                        bassVol={bassVol}     onBassVol={handleBassVol}
-                        extraVol={extraVol}   onExtraVol={handleExtraVol}
-
+                        space={space} onSpace={onSpace}
+                        bright={bright} onBright={onBright}
 
 
                         />
