@@ -29,7 +29,7 @@ export default function ControlsPanel(
 
             <aside className={`cp-card p-3 ${disabled ? 'cp-disabled' : ''}`}>
                 <h5 className="cp-title m-0">Controls Panel</h5>
-                <small className="text-muted">Real-time control over the Strudel REPL</small>
+                <small>Real-time control over the Strudel REPL</small>
                 <div className="d-flex align-items-center justify-content-between mb-3 mt-3">
                     
 
