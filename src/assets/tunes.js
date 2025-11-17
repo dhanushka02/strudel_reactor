@@ -3,8 +3,10 @@
 
 export const stranger_tune = `
 
-// Global controls //
 
+samples('github:tidalcycles/dirt-samples');
+
+// Global controls (wired to React controls) //
 globalThis.SPEED  ??= 1;      // Speed slider (1 = normal)
 globalThis.VOLUME ??= 0.75;   // Master volume slider (0–1)
 
@@ -14,18 +16,14 @@ globalThis.CHORDS ??= 1;      // main chords on/off
 globalThis.BASS   ??= 1;      // bass root + bassline on/off
 globalThis.EXTRA  ??= 1;      // organ pad + arp guitar on/off
 
-// Tempo (105 BPM, scaled by SPEED)//
+// Tempo (105 BPM, scaled by SPEED) //
 const BASE_CPS = 105/60/4;
 setcps(BASE_CPS * globalThis.SPEED);
 
-
 // Helper: gate(on, pattern) – used by all toggles //
-
 const gate = (on, pat) => on ? pat : pat.mask("<0!999>");
 
-
-// MELODY //
-
+// -------------------- MELODY --------------------
 
 // m1 – kalimba lead (1 bar loop)
 let m1 =
@@ -64,95 +62,61 @@ let m2 =
 let leadA = gate(globalThis.MELODY, m1);
 let leadB = gate(globalThis.MELODY, m2);
 
-
-// DRUMS (1 bar loop) //
-
+// -------------------- DRUMS (LinnDrum bank) --------------------
 
 let dr =
   stack(
-    s("[bd:<1 0>(<3 1>,8,<0 2>:1.3)] , [~ sd:<15>:2.5]")
-      .note("B1")
-      .bank("LinnDrum")
-      .decay(.3)
+    // Punchy kick pattern
+    s("bd(3,8)")
       .room(".3:2")
-      .fast(2),
+      .decay(0.4)
+      .shape(0.3)
+      .gain(1.2),
 
-    s("[LinnDrum_hh(<3 2>,8)]")
-      .hp("1000")
-      .lp("9000")
-      .decay(.3)
-      .velocity([".8 .6"])
+    // Snare on the backbeat
+    s("sd(2,8)")
       .room(".3:2")
-      .fast(2),
+      .decay(0.35)
+      .gain(0.9),
 
-    s("sh*8")
-      .note("B1")
-      .bank("RolandTR808")
-      .room(".6:2")
-      .velocity("[.8 .5]!4")
-      .postgain(1.5)
-      .fast(2)
+    // Fast hi-hats for groove
+    s("hh*16")
+      .lp(9000)
+      .hp(3000)
+      .gain(0.7)
   );
 
 let drums = gate(globalThis.DRUMS, dr);
 
+// -------------------- CHORDS / HARMONY --------------------
 
-// CHORD PROGRESSION (8 bar loops) //
+// Shared chord progression definition (I–vi–IV–V in D major)
+const chordProg = "<0 0 0 0, -1 -1 -1 -1, 1 1 1 1, -2 -2 -2 -2>/2";
 
-
-// Electric piano chords
+// Main electric-piano chords
 let chord =
-  n('<[[0,2,4,6] ~!3] ~ ~ ~ \
-[[-1,0,2,4] ~!3] ~ ~ ~ \
-[[1,3,5,7] ~!3]  ~ ~ ~ \
-[[-2,0,1,3] ~!3]  ~ [[-2,-1,1,3] ~!3] ~ >')
+  n(chordProg)
     .scale("D:major")
     .s("gm_epiano1:6")
-    .decay(1.5)
-    .release(.25)
+    .legato(1.4)
     .lp(2500)
-    .delay(".45:.1:.3")
     .room(".6:2")
-    .postgain(1.5)
-    .fast(2);
+    .postgain(2.0);
 
 let chordsMain = gate(globalThis.CHORDS, chord);
 
-// Organ pad layer
-let chordOrg =
-  n('<[0,2,4,6] \
-[-1,0,2,4] \
-[1,3,5,7] \
-[-2,0,1,3] >/2')
-    .scale("D2:major")
-    .s("gm_church_organ:4")
-    .legato(1)
-    .delay(".45:.1:.3")
-    .room(".6:2")
-    .postgain(.6);
-
-let organLayer = gate(globalThis.EXTRA, chordOrg);
-
-// Arp guitar layer
+// Arp / guitar shimmer on top
 let chordArp =
-  n('<[0 2 4 6]*8 \
-[-1 0 2 4]*8 \
-[1 3 5 7]*8 \
-[-2 0 1 3]*8 >/2')
+  n("<0 2 4 6 4 2 1 2>*2")
     .scale("D4:major")
-    .s("gm_electric_guitar_jazz:<2 3>")
-    .legato(.08)
-    .delay(".45:.1:.3")
+    .s("gm_electric_guitar_jazz:3")
+    .legato(0.08)
     .room(".6:2")
-    .velocity(saw.range(.8,1).fast(4))
-    .juxBy(1, rev())
-    .postgain(1.8);
+    .postgain(1.6);
 
 let arpLayer = gate(globalThis.EXTRA, chordArp);
 
-
-// BASS (8 bar loops) //
-
+// -------------------- BASS --------------------
 
 // Root-note synth bass
 let bass1note =
@@ -181,33 +145,62 @@ let bassline =
 let bassRoot = gate(globalThis.BASS, bass1note);
 let bassLine = gate(globalThis.BASS, bassline);
 
+// -------------------- SONG SECTIONS --------------------
 
-// SONG SECTIONS (built from gated layers) //
+// Soft but not empty: melody + chords + simple bass
+let section1 = stack(
+  leadA,
+  chordsMain,
+  bassRoot
+);
 
+// Main groove: add drums + full bassline
+let section2 = stack(
+  leadA,
+  drums,
+  chordsMain,
+  bassRoot,
+  bassLine
+);
 
-let section1 = stack(leadA, drums);                                         // intro
-let section2 = stack(leadA, drums, chordsMain, bassRoot);                   // add chords + root bass
-let section3 = stack(leadA, drums, chordsMain, bassRoot, bassLine);         // add full bassline
-let section4 = stack(leadB, drums, chordsMain, bassRoot, bassLine, arpLayer);          // + arp
-let section5 = stack(leadB, drums, chordsMain, bassRoot, bassLine, organLayer, arpLayer); // full
-let section6 = section5;                                                    // repeat
-let section7 = stack(leadB, bassRoot, bassLine, organLayer);                // outro, no drums
+// Big chorus: switch to fuller lead + organ pad
+let section3 = stack(
+  leadB,
+  drums,
+  chordsMain,
+  bassRoot,
+  bassLine,
+);
 
-
-// ARRANGEMENT – durations are in cycles //
-
-$: arrange(
-  [2, section1],
-  [8, section2],
-  [8, section3],
-  [8, section4],
-  [8, section5],
-  [4, section6],
-  [4, section7],
+// Max energy: add arp guitar on top
+let section4 = stack(
+  leadB,
+  drums,
+  chordsMain,
+  bassRoot,
+  bassLine,
+  arpLayer
 );
 
 
-// Master volume //
+let section5 = stack(
+  leadA,
+  drums,
+  chordsMain,
+  bassRoot,
+  bassLine
+);
 
+
+// ARRANGEMENT //
+$: arrange(
+  [4, section1],  // 4 cycles – chords + bass already there
+  [8, section2],  // add drums + bassline
+  [8, section3],  // add organ pad
+  [8, section4],  // full stack with arp
+  [4, section5],  // come down but still grooving
+);
+
+// Master volume //
 all(x => x.postgain(globalThis.VOLUME ?? 0.75));
 `;

@@ -80,11 +80,11 @@ export function Proc(
     {
         speed = 1,
         volume = 0.75,
-        kickOn = true,
-        chatOn = true,
-        snareOn = true,
+        melodyOn = true,
+        drumsOn = true,
+        chordsOn = true,
         bassOn = true,
-        arpOn = true,
+        extraOn = true,
     } = {}) {
 
     if (!globalEditor) return;
@@ -98,13 +98,14 @@ export function Proc(
     globalThis.SPEED  = ${speed};
     globalThis.VOLUME = ${volume};
 
-    globalThis.KICK   = ${kickOn  ? 1 : 0};
-    globalThis.CHAT   = ${chatOn  ? 1 : 0};
-    globalThis.SNARE  = ${snareOn ? 1 : 0};
-    globalThis.BASS   = ${bassOn  ? 1 : 0};
-    globalThis.ARP    = ${arpOn   ? 1 : 0};
+    globalThis.MELODY = ${melodyOn ? 1 : 0};
+    globalThis.DRUMS  = ${drumsOn  ? 1 : 0};
+    globalThis.CHORDS = ${chordsOn ? 1 : 0};
+    globalThis.BASS   = ${bassOn   ? 1 : 0};
+    globalThis.EXTRA  = ${extraOn  ? 1 : 0};
 
-    setcps((135/60/4) * globalThis.SPEED);
+
+    setcps((105/60/4) * globalThis.SPEED);
     `);
 
     if (doPlay) setTimeout(() => globalEditor.evaluate(), 0);
@@ -131,17 +132,17 @@ const [p2, setP2] = useState(false);
 const [volume, setVolume] = useState(0.75);
 const [speed, setSpeed] = useState(1);
 
-const [kickOn, setKickOn] = useState(true);
-const [chatOn, setChatOn] = useState(true);
-const [snareOn, setSnareOn] = useState(true);
-const [bassOn, setBassOn] = useState(true);
-const [arpOn, setArpOn] = useState(true);
+const [melodyOn, setMelodyOn] = useState(true);
+const [drumsOn,  setDrumsOn]  = useState(true);
+const [chordsOn, setChordsOn] = useState(true);
+const [bassOn,   setBassOn]   = useState(true);
+const [extraOn,  setExtraOn]  = useState(true);
 
 
 
 
 
-const BASE_CPS = 135/60/4;
+const BASE_CPS = 105/60/4;
 
 const handleVolumeChange = (val) => {
     const n = Math.max(0, Math.min(1, Number(val)));
@@ -161,11 +162,11 @@ const handleSpeedChange = (mult) => {
 
 const handleProcess = () => {
     if (isPlaying) return;
-    Proc(false, { speed, volume, kickOn, chatOn, snareOn, bassOn, arpOn });
+    Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn });
 };
 const handleProcPlay = () => {
     if (isPlaying) return;
-    Proc(true,  { speed, volume, kickOn, chatOn, snareOn, bassOn, arpOn });
+    Proc(true,  { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn });
     setIsPlaying(true);
 };
 
@@ -182,29 +183,33 @@ const handleStop = () => {
 
 // Live instruments toggling
 
-const onKick = (on) => {
-    setKickOn(on);
-    replEval(`globalThis.KICK = ${on ? 1 : 0}`);
+const onMelody = (on) => {
+    setMelodyOn(on);
+    replEval(`globalThis.MELODY = ${on ? 1 : 0}`);
     if (isPlaying) globalEditor?.evaluate();
 };
-const onChat = (on) => {
-    setChatOn(on);
-    replEval(`globalThis.CHAT = ${on ? 1 : 0}`);
+
+const onDrums = (on) => {
+  setDrumsOn(on);
+  replEval(`globalThis.DRUMS = ${on ? 1 : 0}`);
+  if (isPlaying) globalEditor?.evaluate();
+};
+
+const onChords = (on) => {
+    setChordsOn(on);
+    replEval(`globalThis.CHORDS = ${on ? 1 : 0}`);
     if (isPlaying) globalEditor?.evaluate();
 };
-const onSnare = (on) => {
-    setSnareOn(on);
-    replEval(`globalThis.SNARE = ${on ? 1 : 0}`);
-    if (isPlaying) globalEditor?.evaluate();
-};
+
 const onBass = (on) => {
     setBassOn(on);
     replEval(`globalThis.BASS = ${on ? 1 : 0}`);
     if (isPlaying) globalEditor?.evaluate();
 };
-const onArp = (on) => {
-    setArpOn(on);
-    replEval(`globalThis.ARP = ${on ? 1 : 0}`);
+
+const onExtra = (on) => {
+    setExtraOn(on);
+    replEval(`globalThis.EXTRA = ${on ? 1 : 0}`);
     if (isPlaying) globalEditor?.evaluate();
 };
 
@@ -283,11 +288,11 @@ return (
                         volume={volume} onVolume={handleVolumeChange}
                         speed={speed} onSpeed={handleSpeedChange}
 
-                        kickOn={kickOn} onKick={onKick}
-                        chatOn={chatOn} onChat={onChat}
-                        snareOn={snareOn} onSnare={onSnare}
+                        melodyOn={melodyOn} onMelody={onMelody}
+                        drumsOn={drumsOn} onDrums={onDrums}
+                        chordsOn={chordsOn} onChords={onChords}
                         bassOn={bassOn} onBass={onBass}
-                        arpOn={arpOn} onArp={onArp}
+                        extraOn={extraOn} onExtra={onExtra}
                         />
                 </div>
             </div>

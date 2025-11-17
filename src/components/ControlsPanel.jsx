@@ -1,5 +1,7 @@
 // src/components/ControlsPanel.jsx
 
+import { useEffect, useState } from "react";
+
 const speeds = [0.5, 1, 1.5, 2];
 
 export default function ControlsPanel(
@@ -7,21 +9,23 @@ export default function ControlsPanel(
         disabled = false,
         volume, onVolume,
         speed, onSpeed,
-        kickOn, onKick,
-        chatOn, onChat,
-        snareOn, onSnare,
+
+        // Instrument toggles //
+        melodyOn, onMelody,
+        drumsOn, onDrums,
+        chordsOn, onChords,
         bassOn, onBass,
-        arpOn, onArp,
+        extraOn, onExtra,
         
     }) {
 
-        const instruments = [
-            { id: 'kick', label: 'Kick', checked: kickOn, onChange: onKick},
-            { id: 'chat', label: 'Chat', checked: chatOn, onChange: onChat},
-            { id: 'snare', label: 'Snare', checked: snareOn, onChange: onSnare},
-            { id: 'bass', label: 'Bass', checked: bassOn, onChange: onBass},
-            { id: 'arp', label: 'Arp', checked: arpOn, onChange: onArp},
-        ]
+            const instruments = [
+        { id: "melody", label: "Melody (Kalimba / Guitar)", checked: melodyOn, onChange: onMelody },
+        { id: "drums",  label: "Drums",                      checked: drumsOn,  onChange: onDrums },
+        { id: "chords", label: "Chords (E-Piano)",           checked: chordsOn, onChange: onChords },
+        { id: "bass",   label: "Bass",                        checked: bassOn,   onChange: onBass },
+        { id: "extra",  label: "Extra (Organ + Arp)",        checked: extraOn,  onChange: onExtra },
+    ];
 
     
     
@@ -42,24 +46,24 @@ export default function ControlsPanel(
 
                 {/* Instrument Controls */}
                 <section className="cp-pattern mb-3">
-                    <h6 className="mb-2">Instruments</h6>
+                        <h6 className="mb-2">Instruments</h6>
 
-                    <div className="d-grid gap-2">
-                    {instruments.map(({ id, label, checked, onChange }) => (
-                        <label key={id} className="cp-toggle-row">
-                        <span className="cp-toggle-label">{label}</span>
-                        <input
-                            id={`ins-${id}`}
-                            type="checkbox"
-                            className="cp-toggle-input"
-                            checked={!!checked}
-                            onChange={e => onChange?.(e.target.checked)}
-                            aria-label={`${label} ${checked ? 'on' : 'off'}`}
-                        />
-                        <span className="cp-toggle-switch" aria-hidden />
-                        </label>
-                    ))}
-                    </div>
+                        <div className="d-grid gap-2">
+                        {instruments.map(({ id, label, checked, onChange }) => (
+                            <label key={id} className="cp-toggle-row">
+                            <span className="cp-toggle-label">{label}</span>
+                            <input
+                                id={`ins-${id}`}
+                                type="checkbox"
+                                className="cp-toggle-input"
+                                checked={!!checked}
+                                onChange={(e) => onChange?.(e.target.checked)}
+                                aria-label={`${label} ${checked ? "on" : "off"}`}
+                            />
+                            <span className="cp-toggle-switch" aria-hidden />
+                            </label>
+                        ))}
+                        </div>
                 </section>
 
                 {/* Volume */}
