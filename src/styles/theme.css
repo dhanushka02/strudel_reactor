@@ -3,8 +3,8 @@
 /*  Design Tokens  */
 :root{
   /* Page background gradient */
-    --bg-1: #dfecfa;
-    --bg-2: #94bbf5;
+    --bg-1: #76c2f8;
+    --bg-2: #84ade6;
 
   /* Surfaces (cards, panels) */
     --surface-strong: #ffffff;
@@ -563,7 +563,7 @@ body{
     color: #1d3c6a;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand) 12%, transparent);
 }
-.btn-proc:hover{ filter: brightness(1.04); }
+.btn-proc:hover{ filter: brightness(1.04); background: whitesmoke; color: black;}
 
 .btn-procplay{
     background: #f3f7ff;
@@ -571,7 +571,7 @@ body{
     color: #173860;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand) 10%, transparent);
 }
-.btn-procplay:hover{ filter: brightness(1.05); }
+.btn-procplay:hover{ filter: brightness(1.05); background: whitesmoke; color: black;}
 
 .btn-play{
     background: linear-gradient(180deg,#27C07A,#1EA565);
