@@ -583,7 +583,7 @@ body{
 .btn-play:hover{ filter: brightness(1.06); background-color:#219a61; }
 
 .btn-stop{
-    background: linear-gradient(180deg,#B06ACF,#9170A6);
+    background: linear-gradient(180deg,#ef89d4,#d44141);
     border-radius: 0 14px 14px 0;
     margin-left: -6px; 
     border: 2px solid var(--btn-stop-border);
