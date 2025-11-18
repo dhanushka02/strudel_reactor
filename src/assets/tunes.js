@@ -19,12 +19,26 @@ globalThis.EXTRA  ??= 1;      // organ pad + arp guitar on/off
 // FX controls (wired to "Effects" tab)
 globalThis.SPACE   ??= 0.6;   // 0..1  reverb amount
 globalThis.BRIGHT  ??= 0.5;   // 0..1  filter brightness
+globalThis.WIDTH ??= 0.7; // Stereo width (0 = mono, 1 = wide)
+globalThis.CHORD_LEN ??= 0.6;   // 0..1  chord length (short → long)
+
+globalThis.DRUM_KIT ??= 0;   // 0 = Studio, 1 = TR-808, 2 = TR-909 (drum kits)
+
+// Helper functions for FX parameters //
 
 globalThis.roomAmt = () =>
   0.05 + (globalThis.SPACE ?? 0) * 1.2;           // 0.05–1.25 reverb
 
 globalThis.brightCut = () =>
   500 + (globalThis.BRIGHT ?? 0.5) * 7500;        // 500–8000 Hz cutoff
+
+globalThis.widthAmt = () =>
+  (globalThis.WIDTH ?? 0.7);                      // 0–1 width factor
+
+globalThis.chordLen = () =>
+  (globalThis.CHORD_LEN ?? 0.6);   // 0–1 normalized
+
+
 
 // Tempo (105 BPM, scaled by SPEED) //
 const BASE_CPS = 105/60/4;
@@ -33,6 +47,9 @@ setcps(BASE_CPS * globalThis.SPEED);
 // Helper: gate(on, pattern) – used by all toggles //
 const gate = (on, pat) => on ? pat : pat.mask("<0!999>");
 
+
+const w = widthAmt(); // 0..1 stereo width factor
+const cLen = chordLen();           // 0..1 chord length
 
 // -------------------- MELODY --------------------
 
@@ -69,17 +86,63 @@ let m2 =
     )
     .fast(2);
 
-let leadA = gate(globalThis.MELODY, m1);
-let leadB = gate(globalThis.MELODY, m2);
+let leadA = gate(globalThis.MELODY, m1).pan(-0.6 * w);
+let leadB = gate(globalThis.MELODY, m2).pan(-0.4 * w);
 
 
 
 
 
-// -------------------- DRUMS (LinnDrum bank) --------------------
+// -------------------- DRUMS – kit selector  --------------------
 
-let dr =
-  stack(
+// 0 = Studio, 1 = 808-ish, 2 = 909-ish
+const currentKit = globalThis.DRUM_KIT ?? 0;
+
+const makeDrums = () => {
+  if (currentKit === 1) {
+    // "808-ish" – deeper kicks, softer snares, bright hats
+    return stack(
+      s("bd:2(3,8)")              // alt kick sample
+        .room(roomAmt() * 0.6)
+        .decay(0.45)
+        .shape(0.35)
+        .gain(1.3),
+
+      s("sd:2(2,8)")              // alt snare
+        .room(roomAmt() * 0.7)
+        .decay(0.38)
+        .gain(0.95),
+
+      s("hh:2*16")                // brighter hats
+        .lp(brightCut() + 2500)
+        .hp(1200 + (1 - (globalThis.BRIGHT ?? 0.5)) * 800)
+        .gain(0.75)
+    );
+  }
+
+  if (currentKit === 2) {
+    // "909-ish" – punchy kick, snappy snare, tighter hats
+    return stack(
+      s("bd:3(3,8)")
+        .room(roomAmt() * 0.4)
+        .decay(0.35)
+        .shape(0.4)
+        .gain(1.4),
+
+      s("sd:3(2,8)")
+        .room(roomAmt() * 0.5)
+        .decay(0.3)
+        .gain(1.0),
+
+      s("hh:3*16")
+        .lp(brightCut() + 1500)
+        .hp(1500 + (1 - (globalThis.BRIGHT ?? 0.5)) * 700)
+        .gain(0.7)
+    );
+  }
+
+  // 0 – Studio (default)
+  return stack(
     s("bd(3,8)")
       .room(roomAmt() * 0.5)
       .decay(0.4)
@@ -96,8 +159,10 @@ let dr =
       .hp(1000 + (1 - (globalThis.BRIGHT ?? 0.5)) * 1000)
       .gain(0.7)
   );
+};
 
-let drums = gate(globalThis.DRUMS, dr);
+let dr     = makeDrums();
+let drums  = gate(globalThis.DRUMS, dr);
 
 // -------------------- CHORDS / HARMONY --------------------
 
@@ -109,12 +174,13 @@ let chord =
   n(chordProg)
     .scale("D:major")
     .s("gm_epiano1:6")
-    .legato(1.4)
+    .legato(0.4 + cLen * 1.6)
+    .decay(0.7 + cLen * 1.3)
     .lp(brightCut())
     .room(roomAmt())
     .postgain(2.0);
 
-let chordsMain = gate(globalThis.CHORDS, chord);
+let chordsMain = gate(globalThis.CHORDS, chord).pan(0.4 * w);
 
 // Arp / guitar shimmer on top
 let chordArp =
@@ -126,7 +192,8 @@ let chordArp =
     .room(roomAmt())
     .postgain(1.6);
 
-let arpLayer = gate(globalThis.EXTRA, chordArp);
+let arpLayer =
+  gate(globalThis.EXTRA, chordArp).pan(0.9 * w);
 
 // -------------------- BASS --------------------
 
@@ -154,8 +221,8 @@ let bassline =
     .room(roomAmt() * 0.6)
     .postgain(1.5);
 
-let bassRoot = gate(globalThis.BASS, bass1note);
-let bassLine = gate(globalThis.BASS, bassline);
+let bassRoot = gate(globalThis.BASS, bass1note).pan(-0.1 * w);
+let bassLine = gate(globalThis.BASS, bassline).pan(0.1 * w);
 
 // -------------------- SONG SECTIONS --------------------
 

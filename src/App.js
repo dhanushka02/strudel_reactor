@@ -138,6 +138,10 @@ const [speed, setSpeed] = useState(1);
 
 const [space,  setSpace]  = useState(0.6);
 const [bright, setBright] = useState(0.5);
+const [width,  setWidth]  = useState(0.7);
+const [chordLen, setChordLen] = useState(0.6);
+
+const [drumKit, setDrumKit] = useState(0);
 
 const [melodyOn, setMelodyOn] = useState(true);
 const [drumsOn,  setDrumsOn]  = useState(true);
@@ -165,6 +169,28 @@ const handleSpeedChange = (mult) => {
     `);
 };
 
+const handleWidthChange = (val) => {
+    const n = Math.max(0, Math.min(1, Number(val)));
+    setWidth(n);
+    replEval(`globalThis.WIDTH = ${n};`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+
+const handleChordLen = (val) => {
+    const n = Math.max(0, Math.min(1, Number(val)));
+    setChordLen(n);
+    replEval(`globalThis.CHORD_LEN = ${n};`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+
+const handleDrumKit = (kitIndex) => {
+    setDrumKit(kitIndex);
+    replEval(`globalThis.DRUM_KIT = ${kitIndex};`);
+    if (isPlaying) {
+        globalEditor?.evaluate();
+    }
+};
+
 const handleProcess = () => {
     if (isPlaying) return;
     Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
@@ -185,6 +211,8 @@ const handleStop = () => {
     globalEditor?.stop();
     setIsPlaying(false);
 }
+
+
 
 // Live instruments toggling
 
@@ -274,7 +302,10 @@ useEffect(() => {
             
         const ta = document.getElementById('proc');
         if (ta) ta.value = stranger_tune;
-        replEval(`globalThis.VOLUME = ${volume ?? 0.75};`);
+        replEval(`
+            globalThis.VOLUME = ${volume ?? 0.75};
+            globalThis.WIDTH = ${width ?? 0.7};
+            `);
         Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
         
     }
@@ -317,6 +348,10 @@ return (
 
                         space={space} onSpace={onSpace}
                         bright={bright} onBright={onBright}
+                        width={width} onWidth={handleWidthChange}
+                        chordLen={chordLen} onChordLen={handleChordLen}
+
+                        drumKit={drumKit} onDrumKit={handleDrumKit}
 
 
                         />
