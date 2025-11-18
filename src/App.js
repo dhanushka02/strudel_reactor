@@ -144,6 +144,8 @@ const [chordLen, setChordLen] = useState(0.6);
 const [drumKit, setDrumKit] = useState(0);
 const [melodyStyle, setMelodyStyle] = useState(0);
 
+const [section, setSection] = useState(0);
+
 const [melodyOn, setMelodyOn] = useState(true);
 const [drumsOn,  setDrumsOn]  = useState(true);
 const [chordsOn, setChordsOn] = useState(true);
@@ -272,6 +274,12 @@ const onBright = (val) => {
     if (isPlaying) globalEditor?.evaluate();
 };
 
+const onSection = (val) => {
+    setSection(val);
+    replEval(`globalThis.SECTION = ${val};`);
+    if (isPlaying) globalEditor?.evaluate();
+};
+
 
 
 useEffect(() => {
@@ -363,6 +371,8 @@ return (
 
                         drumKit={drumKit} onDrumKit={handleDrumKit}
                         melodyStyle={melodyStyle} onMelodyStyle={handleMelodyStyle}
+
+                        section={section} onSection={onSection}
 
 
                         />

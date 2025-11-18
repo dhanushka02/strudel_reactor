@@ -25,6 +25,8 @@ globalThis.CHORD_LEN  ??= 0.6;  // 0..1  chord length (short → long)
 globalThis.DRUM_KIT     ??= 0;  // 0 = Studio, 1 = 808-ish, 2 = 909-ish
 globalThis.MELODY_STYLE ??= 0;  // 0 = Kalimba, 1 = Kalimba+Guitar, 2 = E-Piano lead
 
+globalThis.SECTION ??= 0;
+
 // ---------------- HELPER FUNCTIONS ----------------
 
 // read current slider values every time the code is evaluated
@@ -281,12 +283,21 @@ let section5 = stack(
 );
 
 // ARRANGEMENT //
-$: arrange(
-  [4, section1],
-  [8, section2],
-  [8, section3],
-  [8, section4],
-  [4, section5],
+$: (
+  globalThis.SECTION === 1 ? section1 :
+  globalThis.SECTION === 2 ? section2 :
+  globalThis.SECTION === 3 ? section3 :
+  globalThis.SECTION === 4 ? section4 :
+  globalThis.SECTION === 5 ? section5 :
+
+  // fallback = auto arrangement
+  arrange(
+    [4, section1],
+    [8, section2],
+    [8, section3],
+    [8, section4],
+    [4, section5],
+  )
 );
 
 // Master volume //

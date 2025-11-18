@@ -25,6 +25,7 @@ export default function ControlsPanel(
 
         drumKit, onDrumKit,
         melodyStyle, onMelodyStyle,
+        section, onSection,
         
     }) {
         const [activeTab, setActiveTab] = useState('instruments');
@@ -64,6 +65,7 @@ export default function ControlsPanel(
                         <button className="cp-tab" role="tab" aria-selected={activeTab === 'instruments'} onClick={() => setActiveTab('instruments')}>Instruments</button>
                         <button className="cp-tab" role="tab" aria-selected={activeTab === 'effects'} onClick={() => setActiveTab('effects')}>Effects</button>
                         <button className="cp-tab" role="tab" aria-selected={activeTab === 'kits'} onClick={() => setActiveTab('kits')}>Kits</button>
+                        <button className="cp-tab" role="tab" aria-selected={activeTab === 'sections'} onClick={() => setActiveTab('sections')}>Sections</button>
                     </div>
                 </div>
 
@@ -238,6 +240,32 @@ export default function ControlsPanel(
                             );
                             })}
                         </div>
+                        </div>
+                    </section>
+                )}
+                {activeTab === 'sections' && (
+                    <section className="cp-pattern mb-3">
+                        <h6 className="mb-3">Manual Section Override</h6>
+
+                        <div className="d-flex gap-2 flex-wrap">
+
+                        {[
+                            { id: 0, label: "Auto" },
+                            { id: 1, label: "Section 1" },
+                            { id: 2, label: "Section 2" },
+                            { id: 3, label: "Section 3" },
+                            { id: 4, label: "Section 4" },
+                            { id: 5, label: "Section 5" },
+                        ].map(({ id, label }) => (
+                            <button
+                            key={id}
+                            className={`btn btn-speed ${section === id ? "active" : ""}`}
+                            onClick={() => onSection(id)}
+                            >
+                            {label}
+                            </button>
+                        ))}
+
                         </div>
                     </section>
                 )}
