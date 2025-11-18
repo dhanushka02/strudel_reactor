@@ -1,3 +1,5 @@
+/* global globalThis */
+
 import './App.css';
 import { useEffect, useRef, useState } from "react";
 import { StrudelMirror } from '@strudel/codemirror';
@@ -280,12 +282,16 @@ const onSection = (val) => {
     if (isPlaying) globalEditor?.evaluate();
 };
 
+const handleD3Data = (event) => {
+    console.log("[d3Data]", event.detail);
+};
+
 
 
 useEffect(() => {
 
     if (!hasRun.current) {
-        document.addEventListener("d3Data", handleD3Data);
+        window.addEventListener("d3Data", handleD3Data);
         console_monkey_patch();
         hasRun.current = true;
         //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
@@ -302,7 +308,51 @@ useEffect(() => {
                 transpiler,
                 root: document.getElementById('editor'),
                 drawTime,
-                onDraw: (haps, time) => drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 }),
+                onDraw: (haps, time) => {
+                    drawPianoroll({haps, time, ctx: drawContext, drawTime, fold:0});
+
+
+                    if (typeof window === "undefined") return;
+
+                    const nowSecs = performance.now() / 1000;
+
+                    haps.forEach(h => {
+                        const v = h.value ?? {};
+                        const sName = v.s ?? v.sound ?? v.sample ?? "";
+                        if (!sName) return;
+
+                        let instrument = null;
+
+                        if (/^(bd|sd|hh|cp|rim)/.test(sName)) {
+                            instrument = "drums";
+                        } else if (/^gm_kalimba/.test(sName) || /^gm_acoustic_guitar_steel/.test(sName)) {
+                            instrument = "melody";
+                        } else if (/^gm_epiano1/.test(sName)) {
+                            instrument = "chords";
+                        } else if (/^gm_electric_guitar_jazz/.test(sName)) {
+                            instrument = "extra";
+                        } else if (/^gm_lead_8_bass_lead/.test(sName) || /^gm_electric_bass_pick/.test(sName)) {
+                            instrument = "bass";
+                        }
+
+                        if (!instrument) return;
+
+                        const velocity = v.velocity ?? v.vel ?? 1;
+                        const note = v.note ?? null; // e.g. "D3"
+
+                        window.dispatchEvent(
+                            new CustomEvent("d3Data", {
+                                detail: {
+                                    instrument,
+                                    velocity,
+                                    time: nowSecs,
+                                    note,
+                                },
+                            })
+                        );
+                    });
+                },
+                    
                 prebake: async () => {
                     initAudioOnFirstClick(); // needed to make the browser happy (don't await this here..)
                     const loadModules = evalScope(
@@ -314,6 +364,76 @@ useEffect(() => {
                         
                     );
                     await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
+
+                    // const INSTR_MAP = {
+                    //     // drum samples
+                    //     bd: "drums",
+                    //     sd: "drums",
+                    //     hh: "drums",
+                    //     cp: "drums",
+                    //     rim: "drums",
+
+                    //     // melody / lead instruments
+                    //     gm_kalimba: "melody",
+                    //     gm_acoustic_guitar_steel: "melody",
+
+                    //     // chords / harmony
+                    //     gm_epiano1: "chords",
+
+                    //     // extra / arp / guitar shimmer
+                    //     gm_electric_guitar_jazz: "extra",
+
+                    //     // bass
+                    //     gm_lead_8_bass_lead: "bass",
+                    //     gm_electric_bass_pick: "bass",
+                    // };
+
+                    // const originalS = globalThis.s;
+
+                    // globalThis.s = function patchedS(...args) {
+                    //     // Call the original s() with *all* its arguments
+                    //     const p = originalS.apply(this, args);
+
+                    //     try {
+                    //     const patternArg = args[0];
+
+                    //     // Only try to classify plain string patterns
+                    //     if (typeof patternArg !== "string") {
+                    //         return p;
+                    //     }
+
+                    //     // First token before space/paren, strip any :index
+                    //     const token = String(patternArg).split(/[(*\s]/)[0];
+                    //     const base  = token.split(":")[0];
+
+                    //     const instrument = INSTR_MAP[base];
+                    //     if (!instrument) {
+                    //         return p;
+                    //     }
+
+                    //     if (p && typeof p.onEvent === "function") {
+                    //         p.onEvent((ev) => {
+                    //         const velocity = ev?.velocity ?? 1;
+                    //         if (typeof window === "undefined") return;
+
+                    //         window.dispatchEvent(
+                    //             new CustomEvent("d3Data", {
+                    //             detail: {
+                    //                 instrument,
+                    //                 velocity,
+                    //                 time: performance.now() / 1000,
+                    //             },
+                    //             })
+                    //         );
+                    //         });
+                    //     }
+                    //     } catch (err) {
+                    //     console.warn("[d3 s() patch] failed to attach onEvent", err);
+                    //     }
+
+                    //     return p;
+                    // };
+
                 },
             });
             
@@ -325,6 +445,10 @@ useEffect(() => {
             globalThis.MELODY_STYLE = ${melodyStyle};
             `);
         Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
+    return () => {
+        window.removeEventListener("d3Data", handleD3Data);
+            globalEditor?.stop();
+    }
         
     }
 
