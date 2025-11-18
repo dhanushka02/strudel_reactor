@@ -1,55 +1,55 @@
-// src/assets/tunes.js
-// "Birds of a Feather" inspired tune, adapted for Strudel Reactor UI
+
 
 export const stranger_tune = `
 
-
 samples('github:tidalcycles/dirt-samples');
 
-// Global controls (wired to React controls) //
+// ---------------- GLOBAL CONTROLS ----------------
+
 globalThis.SPEED  ??= 1;      // Speed slider (1 = normal)
 globalThis.VOLUME ??= 0.75;   // Master volume slider (0–1)
 
-globalThis.MELODY ??= 1;      // m1 / m2 lead on/off
+globalThis.MELODY ??= 1;      // lead on/off
 globalThis.DRUMS  ??= 1;      // drum kit on/off
 globalThis.CHORDS ??= 1;      // main chords on/off
 globalThis.BASS   ??= 1;      // bass root + bassline on/off
-globalThis.EXTRA  ??= 1;      // organ pad + arp guitar on/off
+globalThis.EXTRA  ??= 1;      // arp / extra layer on/off
 
-// FX controls (wired to "Effects" tab)
-globalThis.SPACE   ??= 0.6;   // 0..1  reverb amount
-globalThis.BRIGHT  ??= 0.5;   // 0..1  filter brightness
-globalThis.WIDTH ??= 0.7; // Stereo width (0 = mono, 1 = wide)
-globalThis.CHORD_LEN ??= 0.6;   // 0..1  chord length (short → long)
+// FX / mix controls
+globalThis.SPACE      ??= 0.6;  // 0..1  reverb amount
+globalThis.BRIGHT     ??= 0.5;  // 0..1  brightness
+globalThis.WIDTH      ??= 0.7;  // 0..1  stereo width
+globalThis.CHORD_LEN  ??= 0.6;  // 0..1  chord length (short → long)
 
-globalThis.DRUM_KIT ??= 0;   // 0 = Studio, 1 = TR-808, 2 = TR-909 (drum kits)
+// Selectors
+globalThis.DRUM_KIT     ??= 0;  // 0 = Studio, 1 = 808-ish, 2 = 909-ish
+globalThis.MELODY_STYLE ??= 0;  // 0 = Kalimba, 1 = Kalimba+Guitar, 2 = E-Piano lead
 
-// Helper functions for FX parameters //
+// ---------------- HELPER FUNCTIONS ----------------
 
-globalThis.roomAmt = () =>
+// read current slider values every time the code is evaluated
+const roomAmt = () =>
   0.05 + (globalThis.SPACE ?? 0) * 1.2;           // 0.05–1.25 reverb
 
-globalThis.brightCut = () =>
+const brightCut = () =>
   500 + (globalThis.BRIGHT ?? 0.5) * 7500;        // 500–8000 Hz cutoff
 
-globalThis.widthAmt = () =>
+const widthAmt = () =>
   (globalThis.WIDTH ?? 0.7);                      // 0–1 width factor
 
-globalThis.chordLen = () =>
-  (globalThis.CHORD_LEN ?? 0.6);   // 0–1 normalized
+const chordLen = () =>
+  (globalThis.CHORD_LEN ?? 0.6);                  // 0–1 normalized length
 
-
-
-// Tempo (105 BPM, scaled by SPEED) //
+// Tempo (105 BPM, scaled by SPEED)
 const BASE_CPS = 105/60/4;
 setcps(BASE_CPS * globalThis.SPEED);
 
-// Helper: gate(on, pattern) – used by all toggles //
+// Gate helper
 const gate = (on, pat) => on ? pat : pat.mask("<0!999>");
 
-
-const w = widthAmt(); // 0..1 stereo width factor
-const cLen = chordLen();           // 0..1 chord length
+// Snapshot of current FX values for this render
+const w    = widthAmt();
+const cLen = chordLen();
 
 // -------------------- MELODY --------------------
 
@@ -65,7 +65,7 @@ let m1 =
     .room(roomAmt())
     .postgain(1.5);
 
-// m2 – kalimba + guitar layer (1 bar loop)
+// m2 – kalimba + guitar layer
 let m2 =
   note("<[D@3 A@2 ~ D@2] [Cs@2 ~ A@2 ~ Cs@2]>".add("12,24"))
     .layer(
@@ -86,34 +86,54 @@ let m2 =
     )
     .fast(2);
 
-let leadA = gate(globalThis.MELODY, m1).pan(-0.6 * w);
-let leadB = gate(globalThis.MELODY, m2).pan(-0.4 * w);
+// m3 – e-piano style lead
+let m3 =
+  note("<[D@3 A@2 ~ D@2] [Cs@2 ~ A@2 ~ Cs@2]>".add("12,24"))
+    .s("gm_epiano1:6")
+    .legato(1.3)
+    .fast(2)
+    .attack(.02)
+    .release(.25)
+    .lp(brightCut())
+    .room(roomAmt())
+    .postgain(1.8);
 
+// Melody style selector
+const melodyStyle = globalThis.MELODY_STYLE ?? 0;
 
+let leadCore =
+  melodyStyle === 1 ? m2 :
+  melodyStyle === 2 ? m3 :
+  m1; // default = soft kalimba
 
+// Final lead with toggle + pan based on WIDTH
+let leadMain =
+  melodyStyle === 1
+    ? gate(globalThis.MELODY, leadCore).pan(-0.4 * w)
+    : melodyStyle === 2
+      ? gate(globalThis.MELODY, leadCore).pan(-0.2 * w)
+      : gate(globalThis.MELODY, leadCore).pan(-0.6 * w);
 
+// -------------------- DRUMS – KIT SELECTOR --------------------
 
-// -------------------- DRUMS – kit selector  --------------------
-
-// 0 = Studio, 1 = 808-ish, 2 = 909-ish
 const currentKit = globalThis.DRUM_KIT ?? 0;
 
 const makeDrums = () => {
   if (currentKit === 1) {
-    // "808-ish" – deeper kicks, softer snares, bright hats
+    // 808-ish
     return stack(
-      s("bd:2(3,8)")              // alt kick sample
+      s("bd:2(3,8)")
         .room(roomAmt() * 0.6)
         .decay(0.45)
         .shape(0.35)
         .gain(1.3),
 
-      s("sd:2(2,8)")              // alt snare
+      s("sd:2(2,8)")
         .room(roomAmt() * 0.7)
         .decay(0.38)
         .gain(0.95),
 
-      s("hh:2*16")                // brighter hats
+      s("hh:2*16")
         .lp(brightCut() + 2500)
         .hp(1200 + (1 - (globalThis.BRIGHT ?? 0.5)) * 800)
         .gain(0.75)
@@ -121,7 +141,7 @@ const makeDrums = () => {
   }
 
   if (currentKit === 2) {
-    // "909-ish" – punchy kick, snappy snare, tighter hats
+    // 909-ish
     return stack(
       s("bd:3(3,8)")
         .room(roomAmt() * 0.4)
@@ -161,20 +181,19 @@ const makeDrums = () => {
   );
 };
 
-let dr     = makeDrums();
-let drums  = gate(globalThis.DRUMS, dr);
+let dr    = makeDrums();
+let drums = gate(globalThis.DRUMS, dr);
 
 // -------------------- CHORDS / HARMONY --------------------
 
-// Shared chord progression definition
+// Shared chord progression
 const chordProg = "<0 0 0 0, -1 -1 -1 -1, 1 1 1 1, -2 -2 -2 -2>/2";
 
-// Main electric-piano chords
 let chord =
   n(chordProg)
     .scale("D:major")
     .s("gm_epiano1:6")
-    .legato(0.4 + cLen * 1.6)
+    .legato(0.4 + cLen * 1.6)     // chord length slider
     .decay(0.7 + cLen * 1.3)
     .lp(brightCut())
     .room(roomAmt())
@@ -192,12 +211,10 @@ let chordArp =
     .room(roomAmt())
     .postgain(1.6);
 
-let arpLayer =
-  gate(globalThis.EXTRA, chordArp).pan(0.9 * w);
+let arpLayer = gate(globalThis.EXTRA, chordArp).pan(0.9 * w);
 
 // -------------------- BASS --------------------
 
-// Root-note synth bass
 let bass1note =
   n("<0 -1 1 -2>/2")
     .scale("D1:major")
@@ -208,8 +225,6 @@ let bass1note =
     .release(.12)
     .room(roomAmt() * 0.6)
     .postgain(1.3);
-
-// Fast guitar-ish bassline
 
 let bassline =
   note("<[D2!28 Cs2!4] B1*32 [E2!28 D2!4] A1*32>/2")
@@ -222,38 +237,34 @@ let bassline =
     .postgain(1.5);
 
 let bassRoot = gate(globalThis.BASS, bass1note).pan(-0.1 * w);
-let bassLine = gate(globalThis.BASS, bassline).pan(0.1 * w);
+let bassLine = gate(globalThis.BASS, bassline).pan( 0.1 * w);
 
 // -------------------- SONG SECTIONS --------------------
 
-// Soft but not empty: melody + chords + simple bass
 let section1 = stack(
-  leadA,
+  leadMain,
   chordsMain,
   bassRoot
 );
 
-// Main groove: add drums + full bassline
 let section2 = stack(
-  leadA,
+  leadMain,
   drums,
   chordsMain,
   bassRoot,
   bassLine
 );
 
-// Big chorus: switch to fuller lead + organ pad
 let section3 = stack(
-  leadB,
+  leadMain,
   drums,
   chordsMain,
   bassRoot,
-  bassLine,
+  bassLine
 );
 
-// Max energy: add arp guitar on top
 let section4 = stack(
-  leadB,
+  leadMain,
   drums,
   chordsMain,
   bassRoot,
@@ -261,23 +272,21 @@ let section4 = stack(
   arpLayer
 );
 
-
 let section5 = stack(
-  leadA,
+  leadMain,
   drums,
   chordsMain,
   bassRoot,
   bassLine
 );
 
-
 // ARRANGEMENT //
 $: arrange(
-  [4, section1],  // 4 cycles – chords + bass already there
-  [8, section2],  // add drums + bassline
-  [8, section3],  // add organ pad
-  [8, section4],  // full stack with arp
-  [4, section5],  // come down but still grooving
+  [4, section1],
+  [8, section2],
+  [8, section3],
+  [8, section4],
+  [4, section5],
 );
 
 // Master volume //

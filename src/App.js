@@ -142,6 +142,7 @@ const [width,  setWidth]  = useState(0.7);
 const [chordLen, setChordLen] = useState(0.6);
 
 const [drumKit, setDrumKit] = useState(0);
+const [melodyStyle, setMelodyStyle] = useState(0);
 
 const [melodyOn, setMelodyOn] = useState(true);
 const [drumsOn,  setDrumsOn]  = useState(true);
@@ -186,6 +187,14 @@ const handleChordLen = (val) => {
 const handleDrumKit = (kitIndex) => {
     setDrumKit(kitIndex);
     replEval(`globalThis.DRUM_KIT = ${kitIndex};`);
+    if (isPlaying) {
+        globalEditor?.evaluate();
+    }
+};
+
+const handleMelodyStyle = (styleIndex) => {
+    setMelodyStyle(styleIndex);
+    replEval(`globalThis.MELODY_STYLE = ${styleIndex};`);
     if (isPlaying) {
         globalEditor?.evaluate();
     }
@@ -305,6 +314,7 @@ useEffect(() => {
         replEval(`
             globalThis.VOLUME = ${volume ?? 0.75};
             globalThis.WIDTH = ${width ?? 0.7};
+            globalThis.MELODY_STYLE = ${melodyStyle};
             `);
         Proc(false, { speed, volume, melodyOn, drumsOn, chordsOn, bassOn, extraOn, space, bright });
         
@@ -352,6 +362,7 @@ return (
                         chordLen={chordLen} onChordLen={handleChordLen}
 
                         drumKit={drumKit} onDrumKit={handleDrumKit}
+                        melodyStyle={melodyStyle} onMelodyStyle={handleMelodyStyle}
 
 
                         />

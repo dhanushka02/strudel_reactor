@@ -24,22 +24,29 @@ export default function ControlsPanel(
         chordLen, onChordLen,
 
         drumKit, onDrumKit,
+        melodyStyle, onMelodyStyle,
         
     }) {
         const [activeTab, setActiveTab] = useState('instruments');
 
         const instruments = [
-        { id: "melody", label: "Melody (Kalimba / Guitar)", checked: melodyOn, onChange: onMelody },
-        { id: "drums",  label: "Drums",                      checked: drumsOn,  onChange: onDrums },
-        { id: "chords", label: "Chords (E-Piano)",           checked: chordsOn, onChange: onChords },
-        { id: "bass",   label: "Bass",                        checked: bassOn,   onChange: onBass },
-        { id: "extra",  label: "Extra (Organ + Arp)",        checked: extraOn,  onChange: onExtra },
+            { id: "melody", label: "Melody (Kalimba / Guitar)", checked: melodyOn, onChange: onMelody },
+            { id: "drums",  label: "Drums",                      checked: drumsOn,  onChange: onDrums },
+            { id: "chords", label: "Chords (E-Piano)",           checked: chordsOn, onChange: onChords },
+            { id: "bass",   label: "Bass",                        checked: bassOn,   onChange: onBass },
+            { id: "extra",  label: "Extra (Organ + Arp)",        checked: extraOn,  onChange: onExtra },
     ];
 
         const drumKits = [
             { id: 0, value: 0, label: "Studio" },
             { id: 1, value: 1, label: "TR-808" },
             { id: 2, value: 2, label: "TR-909" },
+    ];
+
+        const melodyStyles = [
+            { id: 0, label: "Soft Kalimba" },
+            { id: 1, label: "Kalimba + Guitar" },
+            { id: 2, label: "E-Piano Lead" },
     ];
 
     
@@ -201,14 +208,36 @@ export default function ControlsPanel(
                             </div>
                         </div>
 
-                        {/* */}
-                        <div className="mt-3">
-                            <label className="fw-semibold d-block mb-1">
-                            
-                            </label>
-                            <small className="text-muted">
-                            
-                            </small>
+                        {/* Melody Style selector */}
+                        <div className="mb-3">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <label className="fw-semibold m-0">Melody Style</label>
+                        </div>
+                        
+                        <div className="speed-toggle" role="group" aria-label="Melody styles">
+                            {melodyStyles.map(m => {
+                            const id = `melody-${m.id}`;
+                            return (
+                                <div key={m.id} className="speed-item">
+                                <input
+                                    id={id}
+                                    type="radio"
+                                    name="melody-style"
+                                    value={m.id}
+                                    checked={melodyStyle === m.id}
+                                    onChange={() => onMelodyStyle?.(m.id)}
+                                    className="vh-radio"
+                                />
+                                <label
+                                    htmlFor={id}
+                                    className={`btn btn-speed ${melodyStyle === m.id ? "active" : ""}`}
+                                >
+                                    {m.label}
+                                </label>
+                                </div>
+                            );
+                            })}
+                        </div>
                         </div>
                     </section>
                 )}
