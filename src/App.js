@@ -4,7 +4,6 @@ import './App.css';
 import { useEffect, useRef, useState } from "react";
 import { StrudelMirror } from '@strudel/codemirror';
 import { evalScope, evaluate } from '@strudel/core';
-import { drawPianoroll } from '@strudel/draw';
 import { initAudioOnFirstClick } from '@strudel/webaudio';
 import { transpiler } from '@strudel/transpiler';
 import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/webaudio';
@@ -425,79 +424,68 @@ useEffect(() => {
         window.addEventListener("d3Data", handleD3Data);
         console_monkey_patch();
         hasRun.current = true;
-        //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
-            //init canvas
-            const canvas = document.getElementById('roll');
-            canvas.width = canvas.width * 2;
-            canvas.height = canvas.height * 2;
-            const drawContext = canvas.getContext('2d');
-            const drawTime = [-2, 2]; // time window of drawn haps
 
-            globalEditor = new StrudelMirror({
-                defaultOutput: webaudioOutput,
-                getTime: () => getAudioContext().currentTime,
-                transpiler,
-                root: document.getElementById('editor'),
-                drawTime,
-                onDraw: (haps, time) => {
-                    drawPianoroll({haps, time, ctx: drawContext, drawTime, fold:0});
+        globalEditor = new StrudelMirror({
+            defaultOutput: webaudioOutput,
+            getTime: () => getAudioContext().currentTime,
+            transpiler,
+            root: document.getElementById('editor'),
 
+            // We still use onDraw just to emit data for our custom D3 graph
+            onDraw: (haps, time) => {
+                if (typeof window === "undefined") return;
 
-                    if (typeof window === "undefined") return;
+                const nowSecs = performance.now() / 1000;
 
-                    const nowSecs = performance.now() / 1000;
+                haps.forEach((h) => {
+                    const v = h.value ?? {};
+                    const sName = v.s ?? v.sound ?? v.sample ?? "";
+                    if (!sName) return;
 
-                    haps.forEach(h => {
-                        const v = h.value ?? {};
-                        const sName = v.s ?? v.sound ?? v.sample ?? "";
-                        if (!sName) return;
+                    let instrument = null;
 
-                        let instrument = null;
+                    if (/^(bd|sd|hh|cp|rim)/.test(sName)) {
+                        instrument = "drums";
+                    } else if (/^gm_kalimba/.test(sName) || /^gm_acoustic_guitar_steel/.test(sName)) {
+                        instrument = "melody";
+                    } else if (/^gm_epiano1/.test(sName)) {
+                        instrument = "chords";
+                    } else if (/^gm_electric_guitar_jazz/.test(sName)) {
+                        instrument = "extra";
+                    } else if (/^gm_lead_8_bass_lead/.test(sName) || /^gm_electric_bass_pick/.test(sName)) {
+                        instrument = "bass";
+                    }
 
-                        if (/^(bd|sd|hh|cp|rim)/.test(sName)) {
-                            instrument = "drums";
-                        } else if (/^gm_kalimba/.test(sName) || /^gm_acoustic_guitar_steel/.test(sName)) {
-                            instrument = "melody";
-                        } else if (/^gm_epiano1/.test(sName)) {
-                            instrument = "chords";
-                        } else if (/^gm_electric_guitar_jazz/.test(sName)) {
-                            instrument = "extra";
-                        } else if (/^gm_lead_8_bass_lead/.test(sName) || /^gm_electric_bass_pick/.test(sName)) {
-                            instrument = "bass";
-                        }
+                    if (!instrument) return;
 
-                        if (!instrument) return;
+                    const velocity = v.velocity ?? v.vel ?? 1;
+                    const note = v.note ?? null;
 
-                        const velocity = v.velocity ?? v.vel ?? 1;
-                        const note = v.note ?? null;
-
-                        window.dispatchEvent(
-                            new CustomEvent("d3Data", {
-                                detail: {
-                                    instrument,
-                                    velocity,
-                                    time: nowSecs,
-                                    note,
-                                },
-                            })
-                        );
-                    });
-                },
-                    
-                prebake: async () => {
-                    initAudioOnFirstClick(); // needed to make the browser happy (don't await this here..)
-                    const loadModules = evalScope(
-                        import('@strudel/core'),
-                        import('@strudel/draw'),
-                        import('@strudel/mini'),
-                        import('@strudel/tonal'),
-                        import('@strudel/webaudio')
-                        
+                    window.dispatchEvent(
+                        new CustomEvent("d3Data", {
+                            detail: {
+                                instrument,
+                                velocity,
+                                time: nowSecs,
+                                note,
+                            },
+                        })
                     );
-                    await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
+                });
+            },
 
-                },
-            });
+            prebake: async () => {
+                initAudioOnFirstClick();
+                const loadModules = evalScope(
+                    import("@strudel/core"),
+                    import("@strudel/draw"),
+                    import("@strudel/mini"),
+                    import("@strudel/tonal"),
+                    import("@strudel/webaudio")
+                );
+                await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
+            },
+        });
             
         const ta = document.getElementById('proc');
         if (ta) ta.value = stranger_tune;
@@ -570,7 +558,6 @@ return (
             <div className='row gx-3 gy-3 mt-3'>
                 <div className='col-12'>
                     <D3Visualizer />
-                    <canvas id="roll" className='w-100 mt-2' height="200"></canvas>
                 </div>
             </div>
         </div>

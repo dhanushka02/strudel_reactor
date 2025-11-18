@@ -14,7 +14,7 @@ const INSTR_COLORS = {
 
 // ==== TUNING KNOBS ====
 
-const DISPLAY_WINDOW = 2.5;   // seconds
+const DISPLAY_WINDOW = 2;   // seconds
 const ACTIVE_WINDOW  = 0.45;  // how long a hit is considered "current"
 
 // Per-instrument dash widths (in pixels)
