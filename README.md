@@ -1,70 +1,129 @@
-# Getting Started with Create React App
+### Strudel Reactor – Live Coding Music Platform (Assignment README) ###
+Overview
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a fully interactive, React-based music platform built on top of Strudel, featuring live preprocessing, real-time audio manipulation controls, a fully custom D3 visualizer, and JSON preset handling.
+All UI components are designed with a modern, cohesive theme, responsive layout, and accessibility in mind.
 
-## Available Scripts
+The system lets users modify musical parameters in real time, visualise instrument activity, save/load presets as JSON, and perform a live musical “set” using the provided Strudel composition.
 
-In the project directory, you can run:
+### Controls & Their Functions ###
 
-### `npm start`
+Below is a detailed explanation of each control included in the UI and how it affects the music.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+-- Playback Controls --
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Play – Evaluates the Strudel code and starts audio playback.
+- Stop – Immediately stops all audio and resets evaluation state.
+- Process – Runs preprocessing logic on the Strudel code without playing it.
+- Process & Play – Applies preprocessing logic and starts playback in one action.
 
-### `npm test`
+-- Volume Slider --
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Controls the master volume of the track (globalThis.VOLUME).
+- Range: 0–1
+- Smoothly updates while music is playing.
 
-### `npm run build`
+-- Speed Multiplier (0.5x / 1x / 1.5x / 2x) --
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Adjusts playback speed by modifying Cycles Per Second (setcps).
+- Does not distort audio pitch because Strudel re-evaluates the musical pattern.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+-- Instrument Toggles (On/Off) --
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Each toggle instantly enables or disables an instrument lane:
+           - Melody
+           - Drums
+           - Chords
+           - Bass
+           - Extra / Arp Layer
 
-### `npm run eject`
+Internally mapped to:
+                        globalThis.MELODY
+                        globalThis.DRUMS
+                        globalThis.CHORDS
+                        globalThis.BASS
+                        globalThis.EXTRA
+                    
+-- FX Sliders --
+Reverb Amount – SPACE
+    Controls the overall ambience/room size of the sound.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Brightness – BRIGHT
+    Adjusts tonal brightness (higher values = crisp, lower = mellow).
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Width – WIDTH
+    Stereo width of the mix (0 = narrow mono, 1 = wide stereo).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Chord Length – CHORD_LEN
+    Controls sustain/length of chord notes.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Drum Kit Selector
+- Switches between multiple drum kits by updating: globalThis.DRUM_KIT
 
-## Learn More
+Melody Style Selector
+- Switches between different melody patterns/styles: globalThis.MELODY_STYLE
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Section Selector
+- Changes the musical “section” (e.g., drop, verse, chorus).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Preset Features (JSON Handling) ###
 
-### Code Splitting
+ -- Save Preset --
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- Saves all current settings to a strudel-preset.json file.
+- Contains instrument toggles, sliders, style controls, FX, and layout.
 
-### Analyzing the Bundle Size
+--  Load Preset --
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- User selects any .json preset file.
+- System loads and:
+    - Applies stored state to React controls
+    - Pushes values into Strudel globals
+    - Re-processes the musical pattern
 
-### Making a Progressive Web App
+### D3 Visualizer ###
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+A fully customised real-time instrument activity visualizer featuring:
 
-### Advanced Configuration
+- Five instrument lanes (Melody, Drums, Chords, Bass, Extra)
+- Live activity blocks that move horizontally and change with each triggered note
+- Dynamic colouring system matched to the site theme
+- Velocity-based intensity variation
+- Automatic fade-out of old notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Preprocessor Editor ###
+- Allows users to write and modify preprocessing logic.
+- Changes directly influence the final evaluated Strudel code.
+- Designed for smooth text editing, clear font rendering, and code-focused layout.
 
-### Deployment
+### Strudel REPL Output ###
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Displays Strudel evaluation logs, warnings, pattern updates, and console messages.
+- Helps users understand how preprocessing and control changes impact the music.
+- Fully separated from the editor to avoid visual clutter and improve workflow.
 
-### `npm run build` fails to minify
+### Song Attribution & Source ###
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The musical base code was adapted and edited from:
+
+https://github.com/terryds/awesome-strudel
+
+## Link for the Video Demonstration ##
+https://mymailunisaedu-my.sharepoint.com/:v:/g/personal/mxzdw001_mymail_unisa_edu_au/IQBcCb9GUox9R5Xpd-a1UaMoAYGw1xBZdQax26B3Woo8JMs?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=kDq4DM
+
+
+## AI Usage ##
+Used AI to understand how the new Strudel Framework work such as how .log() produces data, how strudel events fire, and how the REPL evaluation cycle work.
+
+-- Prompts Used --
+“What exactly happens when globalEditor.evaluate() is called? Does it restart audio or patch new values in?”
+    - The REPL recompiles the entire code block currently inside the editor.
+    - It resets the Strudel playback engine with the updated settings.
+    - It clears previous cycles and schedules new audio patterns with the current global values.
+    - It does not reload the audio context unless needed, which keeps playback smooth.
+
+“Can you explain how Strudel generates haps, what values are inside them, and how I can detect instrument triggers? I’m trying to link the data to D3.”
+    - A hap is Strudel’s event object containing time, duration, velocity, note, and sample names.
+    - Inside the REPL’s onDraw callback, Strudel exposes all haps currently active in the time window.
+    - You can inspect h.value.s or h.value.sample to identify which instrument fired.
+    - A suggestion was made to dispatch custom browser events (e.g., new CustomEvent("d3Data")) so React components can listen to real-time note activity.
