@@ -154,6 +154,9 @@ const [chordsOn, setChordsOn] = useState(true);
 const [bassOn,   setBassOn]   = useState(true);
 const [extraOn,  setExtraOn]  = useState(true);
 
+const [presets, setPresets] = useState([]);
+const [presetName, setPresetName] = useState("");
+
 
 
 const BASE_CPS = 105/60/4;
@@ -286,7 +289,135 @@ const handleD3Data = (event) => {
     console.log("[d3Data]", event.detail);
 };
 
+// Helper to build preset object from current settings
+const buildPresetObject = () => ({
+    version: 1,
+    createdAt: Date.now(),
+    settings: {
+        volume,
+        speed,
+        space,
+        bright,
+        width,
+        chordLen,
+        drumKit,
+        melodyStyle,
+        section,
+        melodyOn,
+        drumsOn,
+        chordsOn,
+        bassOn,
+        extraOn,
+    },
+});
 
+// Save → download a .json file
+const handleSavePresetFile = () => {
+    const preset = buildPresetObject();
+    const json = JSON.stringify(preset, null, 2);
+
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "strudel-preset.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};
+
+// Apply loaded JSON to React state + Strudel globals
+const applyPresetSettings = (raw) => {
+
+    const s = raw.settings || raw;
+
+    // 1) Update React state
+    setVolume(s.volume ?? 0.75);
+    setSpeed(s.speed ?? 1);
+    setSpace(s.space ?? 0.6);
+    setBright(s.bright ?? 0.5);
+    setWidth(s.width ?? 0.7);
+    setChordLen(s.chordLen ?? 0.6);
+    setDrumKit(s.drumKit ?? 0);
+    setMelodyStyle(s.melodyStyle ?? 0);
+    setSection(s.section ?? 0);
+
+    setMelodyOn(!!s.melodyOn);
+    setDrumsOn(!!s.drumsOn);
+    setChordsOn(!!s.chordsOn);
+    setBassOn(!!s.bassOn);
+    setExtraOn(!!s.extraOn);
+
+    // 2) Push into Strudel globals
+    replEval(`
+        globalThis.VOLUME = ${s.volume ?? 0.75};
+        globalThis.SPEED  = ${s.speed ?? 1};
+
+        globalThis.MELODY = ${s.melodyOn ? 1 : 0};
+        globalThis.DRUMS  = ${s.drumsOn ? 1 : 0};
+        globalThis.CHORDS = ${s.chordsOn ? 1 : 0};
+        globalThis.BASS   = ${s.bassOn ? 1 : 0};
+        globalThis.EXTRA  = ${s.extraOn ? 1 : 0};
+
+        globalThis.SPACE      = ${s.space ?? 0.6};
+        globalThis.BRIGHT     = ${s.bright ?? 0.5};
+        globalThis.WIDTH      = ${s.width ?? 0.7};
+        globalThis.CHORD_LEN  = ${s.chordLen ?? 0.6};
+
+        globalThis.DRUM_KIT     = ${s.drumKit ?? 0};
+        globalThis.MELODY_STYLE = ${s.melodyStyle ?? 0};
+        globalThis.SECTION      = ${s.section ?? 0};
+
+        setcps(${BASE_CPS} * globalThis.SPEED);
+    `);
+
+    // 3) Re-process the tune with new settings
+    Proc(false, {
+        speed: s.speed ?? 1,
+        volume: s.volume ?? 0.75,
+        melodyOn: !!s.melodyOn,
+        drumsOn: !!s.drumsOn,
+        chordsOn: !!s.chordsOn,
+        bassOn: !!s.bassOn,
+        extraOn: !!s.extraOn,
+        space: s.space ?? 0.6,
+        bright: s.bright ?? 0.5,
+    });
+
+    if (isPlaying) {
+        globalEditor?.evaluate();
+    }
+};
+
+// Load - user picks a .json file, then parse and apply
+const handleLoadPresetFile = async (file) => {
+    if (!file) return;
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text); // JSON READ
+        applyPresetSettings(data);
+        console.log("[preset] loaded from file:", data);
+    } catch (err) {
+        console.error("[preset] failed to load file", err);
+        alert("Could not load preset file. Make sure it is valid JSON.");
+    }
+};
+
+// Load presets (JSON) from localStorage
+useEffect(() => {
+    try {
+        const raw = localStorage.getItem("strudel_presets_v1");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+            setPresets(parsed);
+        }
+    } catch (err) {
+        console.warn("[presets] failed to load from localStorage", err);
+    }
+}, []);
 
 useEffect(() => {
 
@@ -338,7 +469,7 @@ useEffect(() => {
                         if (!instrument) return;
 
                         const velocity = v.velocity ?? v.vel ?? 1;
-                        const note = v.note ?? null; // e.g. "D3"
+                        const note = v.note ?? null;
 
                         window.dispatchEvent(
                             new CustomEvent("d3Data", {
@@ -365,75 +496,6 @@ useEffect(() => {
                     );
                     await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
 
-                    // const INSTR_MAP = {
-                    //     // drum samples
-                    //     bd: "drums",
-                    //     sd: "drums",
-                    //     hh: "drums",
-                    //     cp: "drums",
-                    //     rim: "drums",
-
-                    //     // melody / lead instruments
-                    //     gm_kalimba: "melody",
-                    //     gm_acoustic_guitar_steel: "melody",
-
-                    //     // chords / harmony
-                    //     gm_epiano1: "chords",
-
-                    //     // extra / arp / guitar shimmer
-                    //     gm_electric_guitar_jazz: "extra",
-
-                    //     // bass
-                    //     gm_lead_8_bass_lead: "bass",
-                    //     gm_electric_bass_pick: "bass",
-                    // };
-
-                    // const originalS = globalThis.s;
-
-                    // globalThis.s = function patchedS(...args) {
-                    //     // Call the original s() with *all* its arguments
-                    //     const p = originalS.apply(this, args);
-
-                    //     try {
-                    //     const patternArg = args[0];
-
-                    //     // Only try to classify plain string patterns
-                    //     if (typeof patternArg !== "string") {
-                    //         return p;
-                    //     }
-
-                    //     // First token before space/paren, strip any :index
-                    //     const token = String(patternArg).split(/[(*\s]/)[0];
-                    //     const base  = token.split(":")[0];
-
-                    //     const instrument = INSTR_MAP[base];
-                    //     if (!instrument) {
-                    //         return p;
-                    //     }
-
-                    //     if (p && typeof p.onEvent === "function") {
-                    //         p.onEvent((ev) => {
-                    //         const velocity = ev?.velocity ?? 1;
-                    //         if (typeof window === "undefined") return;
-
-                    //         window.dispatchEvent(
-                    //             new CustomEvent("d3Data", {
-                    //             detail: {
-                    //                 instrument,
-                    //                 velocity,
-                    //                 time: performance.now() / 1000,
-                    //             },
-                    //             })
-                    //         );
-                    //         });
-                    //     }
-                    //     } catch (err) {
-                    //     console.warn("[d3 s() patch] failed to attach onEvent", err);
-                    //     }
-
-                    //     return p;
-                    // };
-
                 },
             });
             
@@ -459,11 +521,13 @@ return (
     <div className='App'>
         {/* Top Navbar */}
         <NavbarControls
-            onProcess={handleProcess}
-            onProcPlay={handleProcPlay}
-            onPlay={handlePlay}
-            onStop={handleStop}
-            isPlaying={isPlaying}
+        onProcess={handleProcess}
+        onProcPlay={handleProcPlay}
+        onPlay={handlePlay}
+        onStop={handleStop}
+        isPlaying={isPlaying}
+        onSavePresetFile={handleSavePresetFile}
+        onLoadPresetFile={handleLoadPresetFile}
         />
 
         {/* Main Content */}
